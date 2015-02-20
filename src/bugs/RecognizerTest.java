@@ -12,8 +12,8 @@ import java.io.StringReader;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author arestelle
+/**Tests the Recognizer class.
+ * @author Nicki Hoffman
  *
  */
 public class RecognizerTest {
@@ -29,6 +29,10 @@ public class RecognizerTest {
     }
 
 
+    /**
+     * Setup method for RecognizerTest.
+     * @throws Exception
+     */
     @Before
     public void setUp() throws Exception {
         r0 = new Recognizer("");
@@ -42,12 +46,18 @@ public class RecognizerTest {
         r8 = new Recognizer("#");
     }
 
+	/**
+	 * Test method for {@link bugs.Recognizer#Recognizer(java.lang.String)}.
+	 */
     @Test
     public void testRecognizer() {
         r0 = new Recognizer("");
         r1 = new Recognizer("2 + 2");
     }
 
+	/**
+	 * Test method for {@link bugs.Recognizer#isArithmeticExpression()}.
+	 */
     @Test
     public void testIsArithmeticExpression() {
         assertTrue(r1.isArithmeticExpression());
@@ -73,6 +83,9 @@ public class RecognizerTest {
         }
     }
 
+	/**
+	 * Test method for {@link bugs.Recognizer#isArithmeticExpression()}.
+	 */
     @Test
     public void testIsArithmeticExpressionWithUnaryMinus() {
         assertTrue(new Recognizer("-5").isArithmeticExpression());
@@ -81,6 +94,9 @@ public class RecognizerTest {
         assertTrue(new Recognizer("12+(+5*10)").isArithmeticExpression());
     }
 
+	/**
+	 * Test method for {@link bugs.Recognizer#isTerm()}.
+	 */
     @Test
     public void testIsTerm() {
         assertFalse(r0.isTerm()); // ""
@@ -103,6 +119,9 @@ public class RecognizerTest {
         followedBy(r5, "");
     }
 
+	/**
+	 * Test method for {@link bugs.Recognizer#isFactor()}.
+	 */
     @Test
     public void testIsFactor() {
         assertTrue(r1.isFactor());
@@ -131,6 +150,9 @@ public class RecognizerTest {
         assertEquals(new Token(Token.Type.NUMBER, "5.0"), r.nextToken());
     }
     
+	/**
+	 * Test method for {@link bugs.Recognizer#isParameterList()}.
+	 */
     @Test
     public void testIsParameterList() {
         Recognizer r = new Recognizer("() $");
@@ -141,6 +163,9 @@ public class RecognizerTest {
         assertTrue(r.isParameterList()); followedBy(r, "$");
     }
 
+	/**
+	 * Test method for {@link bugs.Recognizer#isAddOperator()}.
+	 */
     @Test
     public void testIsAddOperator() {
         Recognizer r = new Recognizer("+ - $");
@@ -150,6 +175,9 @@ public class RecognizerTest {
         followedBy(r, "$");
     }
 
+	/**
+	 * Test method for {@link bugs.Recognizer#isMultiplyOperator()}.
+	 */
     @Test
     public void testIsMultiplyOperator() {
         Recognizer r = new Recognizer("* / $");
@@ -159,6 +187,9 @@ public class RecognizerTest {
         followedBy(r, "$");
     }
 
+	/**
+	 * Test method for {@link bugs.Recognizer#isVariable()}.
+	 */
     @Test
     public void testIsVariable() {
         Recognizer r = new Recognizer("foo 23 bar +");
@@ -173,12 +204,19 @@ public class RecognizerTest {
         assertTrue(r.isAddOperator());
     }
 
+	/**
+	 * Test method for {@link bugs.Recognizer#symbol(java.lang.String)}.
+	 * TODO except that it doesn't? it tests what, SYMBOL?
+	 */
     @Test
     public void testSymbol() {
         Recognizer r = new Recognizer("++");
         assertEquals(new Token(Token.Type.SYMBOL, "+"), r.nextToken());
     }
 
+	/**
+	 * Test method for {@link bugs.Recognizer#nextTokenMatches(Token.Type)}.
+	 */
     @Test
     public void testNextTokenMatchesType() {
         Recognizer r = new Recognizer("++abc");
@@ -188,6 +226,9 @@ public class RecognizerTest {
         assertTrue(r.nextTokenMatches(Token.Type.NAME));
     }
 
+	/**
+	 * Test method for {@link bugs.Recognizer#nextTokenMatches(Token.Type, java.lang.String)}.
+	 */
     @Test
     public void testNextTokenMatchesTypeString() {
         Recognizer r = new Recognizer("+abc+");
@@ -197,6 +238,9 @@ public class RecognizerTest {
         assertTrue(r.nextTokenMatches(Token.Type.SYMBOL, "+"));
     }
 
+	/**
+	 * Test method for {@link bugs.Recognizer#nextToken()}.
+	 */
     @Test
     public void testNextToken() {
         // NAME, KEYWORD, NUMBER, SYMBOL, EOL, EOF };
@@ -215,6 +259,9 @@ public class RecognizerTest {
         assertEquals(new Token(Token.Type.NUMBER, "123.456"), r.nextToken());
     }
 
+	/**
+	 * Test method for {@link bugs.Recognizer#pushBack()}.
+	 */
     @Test
     public void testPushBack() {
         Recognizer r = new Recognizer("abc 25");
@@ -267,6 +314,8 @@ public class RecognizerTest {
         }
     }
 
+// -------- end Helper methods
+    
 	/**
 	 * Test method for {@link bugs.Recognizer#isExpression()}.
 	 */
@@ -328,7 +377,32 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsColorStatement() {
-		fail("Not yet implemented"); // TODO
+        Recognizer ra = new Recognizer("< <= abc > >= 25 != = #");
+        Recognizer rb = new Recognizer("color darkGray \n");
+        Recognizer rc = new Recognizer("color do \n");
+        Recognizer rd = new Recognizer("notcolor do \n");
+        assertFalse(ra.isColorStatement());
+        assertTrue(rb.isColorStatement());
+        assertTrue(rc.isColorStatement());
+        assertFalse(rd.isColorStatement());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isColorStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsColorStatementE1() {
+        Recognizer r = new Recognizer("color notakeyword \n");
+        assertFalse(r.isColorStatement());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isColorStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsColorStatementE2() {
+        Recognizer r = new Recognizer("color color color");
+        assertFalse(r.isColorStatement());
 	}
 
 	/**
@@ -344,7 +418,19 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsComparator() {
-		fail("Not yet implemented"); // TODO
+        Recognizer r = new Recognizer("< <= abc > >= 25 != = #");
+        // it seems odd but !== or =!= would be 'okay' (just 2 comparators each)
+		assertTrue(r.isComparator());
+		assertTrue(r.isComparator());
+		assertFalse(r.isComparator());
+		r.nextToken();
+		assertTrue(r.isComparator());
+		assertTrue(r.isComparator());
+		assertFalse(r.isComparator());
+		r.nextToken();
+		assertTrue(r.isComparator());
+		assertTrue(r.isComparator());
+		assertFalse(r.isComparator());
 	}
 
 	/**
@@ -360,7 +446,17 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsEol() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r = new Recognizer("25\n30\n\n35\n\n\n\n40");
+		assertFalse(r.isEol());
+		r.nextToken();
+		assertTrue(r.isEol());
+		assertFalse(r.isEol());
+		r.nextToken();
+		assertTrue(r.isEol());
+		assertFalse(r.isEol());
+		r.nextToken();
+		assertTrue(r.isEol());
+		assertFalse(r.isEol());
 	}
 
 	/**
