@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package bugs;
 
 import static org.junit.Assert.*;
@@ -9,13 +12,12 @@ import java.io.StringReader;
 import org.junit.Before;
 import org.junit.Test;
 
-
 /**
- * Test class for Bugs recognizer.
- * @author David Matuszek
+ * @author arestelle
+ *
  */
 public class RecognizerTest {
-    
+	
     Recognizer r0, r1, r2, r3, r4, r5, r6, r7, r8;
     
     /**
@@ -264,4 +266,221 @@ public class RecognizerTest {
             e.printStackTrace();
         }
     }
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isExpression()}.
+	 */
+	@Test
+	public void testIsExpression() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isUnsignedFactor()}.
+	 */
+	@Test
+	public void testIsUnsignedFactor() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isAction()}.
+	 */
+	@Test
+	public void testIsAction() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isAllbugsCode()}.
+	 */
+	@Test
+	public void testIsAllbugsCode() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isAssignmentStatement()}.
+	 */
+	@Test
+	public void testIsAssignmentStatement() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isBlock()}.
+	 */
+	@Test
+	public void testIsBlock() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isBugDefinition()}.
+	 */
+	@Test
+	public void testIsBugDefinition() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isColorStatement()}.
+	 */
+	@Test
+	public void testIsColorStatement() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isCommand()}.
+	 */
+	@Test
+	public void testIsCommand() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isComparator()}.
+	 */
+	@Test
+	public void testIsComparator() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isDoStatement()}.
+	 */
+	@Test
+	public void testIsDoStatement() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isEol()}.
+	 */
+	@Test
+	public void testIsEol() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isExitIfStatement()}.
+	 */
+	@Test
+	public void testIsExitIfStatement() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isFunctionCall()}.
+	 */
+	@Test
+	public void testIsFunctionCall() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isFunctionDefinition()}.
+	 */
+	@Test
+	public void testIsFunctionDefinition() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isInitializationBlock()}.
+	 */
+	@Test
+	public void testIsInitializationBlock() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isLineAction()}.
+	 */
+	@Test
+	public void testIsLineAction() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isLoopStatement()}.
+	 */
+	@Test
+	public void testIsLoopStatement() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isMoveAction()}.
+	 */
+	@Test
+	public void testIsMoveAction() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isMoveToAction()}.
+	 */
+	@Test
+	public void testIsMoveToAction() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isProgram()}.
+	 */
+	@Test
+	public void testIsProgram() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isReturnStatement()}.
+	 */
+	@Test
+	public void testIsReturnStatement() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isStatement()}.
+	 */
+	@Test
+	public void testIsStatement() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isSwitchStatement()}.
+	 */
+	@Test
+	public void testIsSwitchStatement() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isTurnAction()}.
+	 */
+	@Test
+	public void testIsTurnAction() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isTurnToAction()}.
+	 */
+	@Test
+	public void testIsTurnToAction() {
+		fail("Not yet implemented"); // TODO
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isVarDeclaration()}.
+	 */
+	@Test
+	public void testIsVarDeclaration() {
+		fail("Not yet implemented"); // TODO
+	}
+
 }
