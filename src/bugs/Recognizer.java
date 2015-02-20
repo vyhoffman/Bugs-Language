@@ -348,7 +348,7 @@ public boolean isMoveAction() {
 }
 
 /**
- * Tries to recognize a &lt;move-to action&gt;.
+ * Tries to recognize a &lt;moveto action&gt;.
  * <pre>&lt;moveto action&gt; ::= "moveto" &lt;expression&gt; "," &lt;expression&gt; &lt;eol&gt;</pre>
  * @return <code>true</code> if a move-to action is recognized.
  */
@@ -419,7 +419,7 @@ public boolean isTurnAction() {
 }
 
 /**
- * Tries to recognize a &lt;turn-to action&gt;.
+ * Tries to recognize a &lt;turnto action&gt;.
  * <pre>&lt;turnto action&gt; ::= "turnto" &lt;expression&gt; &lt;eol&gt;</pre>
  * @return <code>true</code> if a turn-to action is recognized.
  */
