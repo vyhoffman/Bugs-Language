@@ -233,11 +233,11 @@ public class RecognizerTest {
     }
 
 	/**
-	 * Test method for {@link bugs.Recognizer#symbol(java.lang.String)}.
-	 * TODO except that it doesn't? it tests what, SYMBOL?
+	 * Test method for symbol.
 	 */
     @Test
     public void testSymbol() {
+    	//TODO this tests what, SYMBOL? not symbol()?
         Recognizer r = new Recognizer("++");
         assertEquals(new Token(Token.Type.SYMBOL, "+"), r.nextToken());
     }
@@ -1217,6 +1217,12 @@ public class RecognizerTest {
 		
 		assertFalse(r5.isProgram());
 		assertFalse(r6.isProgram());
+		
+		//I thought this should be disallowed, but it doesn't break the rule, technically
+		Recognizer r7 = new Recognizer("Allbugs {\n}\n "+
+				"Bug mybug1 {\n turn 42 \n }\n"+
+				"noBug mybug2 {\n turn 42 \n }\n");
+		assertTrue(r7.isProgram());
 	}
 
 	/**
@@ -1242,16 +1248,16 @@ public class RecognizerTest {
 		r.isProgram();
 	}
 
-	/**
-	 * Test method for {@link bugs.Recognizer#isProgram()}.
-	 */
-	@Test(expected=SyntaxException.class)
-	public void testIsProgramE3() {
-		Recognizer r = new Recognizer("Allbugs {\n}\n "+
-				"Bug mybug1 {\n turn 42 \n }\n"+
-				"noBug mybug2 {\n turn 42 \n }\n");
-		r.isProgram();
-	}
+//	/**
+//	 * Test method for {@link bugs.Recognizer#isProgram()}.
+//	 */
+//	@Test(expected=SyntaxException.class)
+//	public void testIsProgramE3() {
+//		Recognizer r = new Recognizer("Allbugs {\n}\n "+
+//				"Bug mybug1 {\n turn 42 \n }\n"+
+//				"noBug mybug2 {\n turn 42 \n }\n");
+//		r.isProgram();
+//	} // changed my mind, think this is allowed at least for now
 
 	/**
 	 * Test method for {@link bugs.Recognizer#isReturnStatement()}.

@@ -57,14 +57,14 @@ public class Recognizer {
 		}
 		return true;
 	}
-	/**TODO check this
+	/**
 	* Tries to recognize an &lt;arithmetic expression&gt;.
 	* <pre>&lt;arithmetic expression&gt; ::= [ &lt;addOperator&gt; ] &lt;term&gt; { &lt;add operator&gt; &lt;term&gt; }</pre>
 	* A <code>SyntaxException</code> will be thrown if the add_operator
 	* is present but not followed by a valid &lt;expression&gt;.
 	* @return <code>true</code> if an arithmetic expression is recognized.
 	*/
-	public boolean isArithmeticExpression() {
+	public boolean isArithmeticExpression() { //TODO check this
 		if (!isTerm()) return false;
 		while (isAddOperator()) {
 			if (!isTerm()) error("Error in expression after '+' or '-'");
@@ -451,7 +451,9 @@ public class Recognizer {
 		}
 		else if (!isBugDefinition()) error("Missing bug definition(s)");
 		while (isBugDefinition());
-		if (!nextTokenMatches(Type.EOF)) error("Invalid program format");
+		//if (!nextTokenMatches(Type.EOF)) error("Invalid program format");
+		//^^changed my mind about that for this hw, think it's allowed
+		//doesn't say program ends in EOF, or anything particular, anyway
 	    return true;
 	}
 	
