@@ -179,7 +179,10 @@ public class Recognizer {
 	 * @return <code>true</code> if an action is recognized.
 	 */
 	public boolean isAction() {
-	    //TODO
+		if (isMoveAction() || isMoveToAction() || isTurnAction() ||
+				isTurnToAction() || isLineAction()) {
+			return true;
+		}
 	    return false;
 	}
 	
@@ -202,8 +205,11 @@ public class Recognizer {
 	 * @return <code>true</code> if an assignment statement is recognized.
 	 */
 	public boolean isAssignmentStatement() {
-	    //TODO
-	    return false;
+		if (!isVariable()) return false;
+		if (!symbol("=")) error("Expected '=' after variable name");
+		if (!isExpression()) error("Missing/invalid expression");
+		if (!isEol()) error("Missing EOL");
+	    return true;
 	}
 	
 	/**
@@ -212,8 +218,12 @@ public class Recognizer {
 	 * @return <code>true</code> if a block is recognized.
 	 */
 	public boolean isBlock() {
-	    //TODO
-	    return false;
+		if (!symbol("{")) return false;
+		if (!isEol()) error("Missing EOL");
+		while (isCommand());
+		if (!symbol("}")) error("Missing '}' after command");
+		if (!isEol()) error("Missing EOL");
+	    return true;
 	}
 	
 	/**
@@ -252,7 +262,7 @@ public class Recognizer {
 	 */
 	public boolean isCommand() {
 	    //TODO
-	    return false;
+	    return isAction() || isStatement();
 	}
 	
 	/**
@@ -261,7 +271,6 @@ public class Recognizer {
 	 * @return <code>true</code> if a comparator is recognized.
 	 */
 	public boolean isComparator() {
-	    //TODO
 		if (symbol("<")) {
 			if (symbol("="));
 			return true;
@@ -286,7 +295,6 @@ public class Recognizer {
 	 * @return <code>true</code> if a do statement is recognized.
 	 */
 	public boolean isDoStatement() {
-	    //TODO
 		if (!keyword("do")) return false;
 		if (!isVariable()) error("Missing variable after 'do'");
 		if (isParameterList());
@@ -313,8 +321,11 @@ public class Recognizer {
 	 * @return <code>true</code> if an exit if statement is recognized.
 	 */
 	public boolean isExitIfStatement() {
-	    //TODO
-	    return false;
+		if (!keyword("exit")) return false;
+		if (!keyword("if")) error("Missing 'if' after 'exit'");
+		if (!isExpression()) error("Missing/invalid expression");
+		if (!isEol()) error("Missing EOL");
+	    return true;
 	}
 	
 	/**
@@ -334,8 +345,16 @@ public class Recognizer {
 	 * @return <code>true</code> if a function definition is recognized.
 	 */
 	public boolean isFunctionDefinition() {
-	    //TODO
-	    return false;
+		if (!keyword("define")) return false;
+		if (!name()) error("Invalid name");
+		if (keyword("using")) {
+			if (!isVariable()) error("Invalid variable name");
+			while (symbol(",")) {
+				if (!isVariable()) error("Invalid variable name");
+			}
+		}
+		if (!isBlock()) error("Missing/invalid block");
+	    return true;
 	}
 	
 	/**
@@ -354,8 +373,16 @@ public class Recognizer {
 	 * @return <code>true</code> if a line action is recognized.
 	 */
 	public boolean isLineAction() {
-	    //TODO
-	    return false;
+		if (!keyword("line")) return false;
+		if (!isExpression()) error("Missing/invalid expression");
+		if (!symbol(",")) error("Missing ','");
+		if (!isExpression()) error("Missing/invalid expression");
+		if (!symbol(",")) error("Missing ','");
+		if (!isExpression()) error("Missing/invalid expression");
+		if (!symbol(",")) error("Missing ','");
+		if (!isExpression()) error("Missing/invalid expression");
+		if (!isEol()) error("Missing EOL");
+	    return true;
 	}
 	
 	/**
@@ -364,8 +391,9 @@ public class Recognizer {
 	 * @return <code>true</code> if a loop statement is recognized.
 	 */
 	public boolean isLoopStatement() {
-	    //TODO
-	    return false;
+		if (!keyword("loop")) return false;
+		if (!isBlock()) error("Missing/invalid block");
+	    return true;
 	}
 	
 	/**
@@ -374,8 +402,10 @@ public class Recognizer {
 	 * @return <code>true</code> if a move action is recognized.
 	 */
 	public boolean isMoveAction() {
-	    //TODO
-	    return false;
+		if (!keyword("move")) return false;
+		if (!isExpression()) error("Missing/invalid expression");
+		if (!isEol()) error("Missing EOL");
+	    return true;
 	}
 	
 	/**
@@ -384,8 +414,12 @@ public class Recognizer {
 	 * @return <code>true</code> if a move-to action is recognized.
 	 */
 	public boolean isMoveToAction() {
-	    //TODO
-	    return false;
+		if (!keyword("moveto")) return false;
+		if (!isExpression()) error("Missing/invalid expression");
+		if (!symbol(",")) error("Missing ',' after expression");
+		if (!isExpression()) error("Missing/invalid expression");
+		if (!isEol()) error("Missing EOL");
+	    return true;
 	}
 	
 	/**
@@ -406,8 +440,10 @@ public class Recognizer {
 	 * @return <code>true</code> if a return statement is recognized.
 	 */
 	public boolean isReturnStatement() {
-	    //TODO
-	    return false;
+		if (!keyword("return")) return false;
+		if (!isExpression()) error("Missing/invalid expression");
+		if (!isEol()) error("Missing EOL");
+	    return true;
 	}
 	
 	/**
@@ -422,7 +458,11 @@ public class Recognizer {
 	 * @return <code>true</code> if a statement is recognized.
 	 */
 	public boolean isStatement() {
-	    //TODO
+		if (isAssignmentStatement() || isLoopStatement() || 
+				isExitIfStatement() || isSwitchStatement() || 
+				isReturnStatement() || isDoStatement() || isColorStatement()) {
+			return true;
+		}
 	    return false;
 	}
 	
@@ -435,8 +475,17 @@ public class Recognizer {
 	 * @return <code>true</code> if a switch statement is recognized.
 	 */
 	public boolean isSwitchStatement() {
-	    //TODO
-	    return false;
+		if (!keyword("switch")) return false;
+		if (!symbol("{")) error("Missing '{'");
+		if (!isEol()) error("Missing EOL");
+		while (keyword("case")) {
+			if (!isExpression()) error("Missing/invalid expression");
+			if (!isEol()) error("Missing EOL");
+			while (isCommand());
+		}
+		if (!symbol("}")) error("Missing '}'");
+		if (!isEol()) error("Missing EOL");
+	    return true;
 	}
 	
 	/**
@@ -445,8 +494,10 @@ public class Recognizer {
 	 * @return <code>true</code> if a turn action is recognized.
 	 */
 	public boolean isTurnAction() {
-	    //TODO
-	    return false;
+		if (!keyword("turn")) return false;
+		if (!isExpression()) error("Missing/invalid expression");
+		if (!isEol()) error("Missing EOL");
+	    return true;
 	}
 	
 	/**
@@ -455,8 +506,10 @@ public class Recognizer {
 	 * @return <code>true</code> if a turn-to action is recognized.
 	 */
 	public boolean isTurnToAction() {
-	    //TODO
-	    return false;
+		if (!keyword("turnto")) return false;
+		if (!isExpression()) error("Missing/invalid expression");
+		if (!isEol()) error("Missing EOL");
+	    return true;
 	}
 	
 	/**
@@ -465,8 +518,13 @@ public class Recognizer {
 	 * @return <code>true</code> if a var declaration is recognized.
 	 */
 	public boolean isVarDeclaration() {
-	    //TODO
-	    return false;
+		if (!keyword("var")) return false;
+		if (!name()) error("Invalid variable name");
+		while (symbol(",")) {
+			if (!name()) error("Invalid variable name");
+		}
+		if (!isEol()) error("Missing EOL");
+	    return true;
 	}
 	
 	

@@ -27,6 +27,34 @@ public class RecognizerTest {
         r0 = new Recognizer("2 + 2");
         r1 = new Recognizer("");
     }
+    
+    
+    /**
+     * Resets variables r1 through r7 to statements, r8 to non-statement.
+     */
+    public void getStatements() {
+		r1 = new Recognizer("myvar = 42 \n");
+		r2 = new Recognizer("loop {\n }\n");
+		r3 = new Recognizer("exit if 42 \n");
+		r4 = new Recognizer("switch {\n }\n");
+		r5 = new Recognizer("return 42 \n");
+		r6 = new Recognizer("do varname \n");
+		r7 = new Recognizer("color darkGray \n");
+		r8 = new Recognizer("move 42 \n");
+    }
+    
+    
+    /**
+     * Resets instance variables r1 through r5 to actions, r6 to non-action.
+     */
+    public void getActions() {
+		r1 = new Recognizer("move 42 \n");
+		r2 = new Recognizer("moveto 42, 42 \n");
+		r3 = new Recognizer("turn 42 \n");
+		r4 = new Recognizer("turnto 42 \n");
+		r5 = new Recognizer("line 42, 42, 42, 42 \n");
+		r6 = new Recognizer("loop 42 \n");
+    }
 
 
     /**
@@ -362,7 +390,16 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsAction() {
-		fail("Not yet implemented"); // TODO
+		getActions();
+		
+		assertTrue(r1.isAction());
+		assertTrue(r2.isAction());
+		assertTrue(r3.isAction());
+		assertTrue(r4.isAction());
+		assertTrue(r5.isAction());
+		
+		assertFalse(r6.isAction());
+		assertFalse(r0.isAction());
 	}
 
 	/**
@@ -378,7 +415,37 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsAssignmentStatement() {
-		fail("Not yet implemented"); // TODO
+        Recognizer r1 = new Recognizer("myVar = 42 \n");
+        Recognizer r2 = new Recognizer("1myVar = 42 \n");
+        assertTrue(r1.isAssignmentStatement());
+        assertFalse(r2.isAssignmentStatement());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isAssignmentStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsAssignmentStatementE1() {
+        Recognizer r = new Recognizer("myVar != 42 \n");
+        r.isAssignmentStatement();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isAssignmentStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsAssignmentStatementE2() {
+        Recognizer r = new Recognizer("myVar = 42notanexpression \n");
+        r.isAssignmentStatement();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isAssignmentStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsAssignmentStatementE3() {
+        Recognizer r = new Recognizer("myVar = 42 nonewlineforyou");
+        r.isAssignmentStatement();
 	}
 
 	/**
@@ -386,7 +453,50 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsBlock() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r1 = new Recognizer("{\n }\n");
+		Recognizer r2 = new Recognizer("{\n move 42 \n }\n");
+		Recognizer r3 = new Recognizer("{\n move 42 \n turn 24 \n }\n");
+		Recognizer r4 = new Recognizer("!{\n }\n");
+		assertTrue(r1.isBlock());
+		assertTrue(r2.isBlock());
+		assertTrue(r3.isBlock());
+		assertFalse(r4.isBlock());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isBlock()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsBlockE1() {
+		Recognizer r = new Recognizer("{ nonewlineforyou }\n");
+		r.isBlock();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isBlock()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsBlockE2() {
+		Recognizer r = new Recognizer("{\n thisissonotastatement }\n");
+		r.isBlock();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isBlock()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsBlockE3() {
+		Recognizer r = new Recognizer("{\n !\n");
+		r.isBlock();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isBlock()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsBlockE4() {
+		Recognizer r = new Recognizer("{\n } nonewlineforyou");
+		r.isBlock();
 	}
 
 	/**
@@ -435,7 +545,23 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsCommand() {
-		fail("Not yet implemented"); // TODO
+        getActions();
+        assertTrue(r1.isCommand());
+        assertTrue(r2.isCommand());
+        assertTrue(r3.isCommand());
+        assertTrue(r4.isCommand());
+        assertTrue(r5.isCommand());
+        
+        getStatements();
+        assertTrue(r1.isCommand());
+        assertTrue(r2.isCommand());
+        assertTrue(r3.isCommand());
+        assertTrue(r4.isCommand());
+        assertTrue(r5.isCommand());
+        assertTrue(r6.isCommand());
+        assertTrue(r7.isCommand());
+        
+        assertFalse(r0.isCommand()); // this is still "" from setup
 	}
 
 	/**
@@ -522,7 +648,37 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsExitIfStatement() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r1 = new Recognizer("exit if 42 \n");
+		Recognizer r2 = new Recognizer("noexit if 42 \n");
+		assertTrue(r1.isExitIfStatement());
+		assertFalse(r2.isExitIfStatement());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isExitIfStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsExitIfStatementE1() {
+		Recognizer r = new Recognizer("exit unless 42 \n");
+		r.isExitIfStatement();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isExitIfStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsExitIfStatementE2() {
+		Recognizer r = new Recognizer("exit if 1notanexpression \n");
+		r.isExitIfStatement();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isExitIfStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsExitIfStatementE3() {
+		Recognizer r = new Recognizer("exit if 42 nonewlineforyou");
+		r.isExitIfStatement();
 	}
 
 	/**
@@ -583,7 +739,70 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsFunctionDefinition() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r1 = new Recognizer("define fn {\n}\n");
+		Recognizer r2 = new Recognizer("define fn using myvar {\n}\n");
+		Recognizer r3 = new Recognizer("define fn using myvar1, myvar2 {\n}\n");
+		Recognizer r4 = new Recognizer("define fn using myvar1, myvar2, myvar3 {\n}\n");
+		Recognizer r5 = new Recognizer("nodefine fn {\n}\n");
+		assertTrue(r1.isFunctionDefinition());
+		assertTrue(r2.isFunctionDefinition());
+		assertTrue(r3.isFunctionDefinition());
+		assertTrue(r4.isFunctionDefinition());
+		assertFalse(r5.isFunctionDefinition());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isFunctionDefinition()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsFunctionDefinitionE1() {
+		Recognizer r = new Recognizer("define 42");
+		r.isFunctionDefinition();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isFunctionDefinition()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsFunctionDefinitionE2() {
+		Recognizer r = new Recognizer("define newFunction usando");
+		r.isFunctionDefinition();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isFunctionDefinition()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsFunctionDefinitionE3() {
+		Recognizer r = new Recognizer("define newFunction using 42");
+		r.isFunctionDefinition();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isFunctionDefinition()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsFunctionDefinitionE4() {
+		Recognizer r = new Recognizer("define newFunction using newvar!");
+		r.isFunctionDefinition();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isFunctionDefinition()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsFunctionDefinitionE5() {
+		Recognizer r = new Recognizer("define newFunction using newvar, 42");
+		r.isFunctionDefinition();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isFunctionDefinition()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsFunctionDefinitionE6() {
+		Recognizer r = new Recognizer("define newFunction using newvar, newvar2 sonotablock");
+		r.isFunctionDefinition();
 	}
 
 	/**
@@ -599,7 +818,82 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsLineAction() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r1 = new Recognizer("line 42, 42, 42, 42\n");
+		Recognizer r2 = new Recognizer("noline 42, 42, 42, 42\n");
+		assertTrue(r1.isLineAction());
+		assertFalse(r2.isLineAction());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isLineAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsLineActionE1() {
+		Recognizer r = new Recognizer("line 42notanexpression, 42, 42, 42\n");
+		r.isLineAction();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isLineAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsLineActionE2() {
+		Recognizer r = new Recognizer("line 42! 42, 42, 42\n");
+		r.isLineAction();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isLineAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsLineActionE3() {
+		Recognizer r = new Recognizer("line 42, 42notanexpression, 42, 42\n");
+		r.isLineAction();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isLineAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsLineActionE4() {
+		Recognizer r = new Recognizer("line 42, 42! 42, 42\n");
+		r.isLineAction();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isLineAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsLineActionE5() {
+		Recognizer r = new Recognizer("line 42, 42, 42notanexpression, 42\n");
+		r.isLineAction();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isLineAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsLineActionE6() {
+		Recognizer r = new Recognizer("line 42, 42, 42! 42\n");
+		r.isLineAction();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isLineAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsLineActionE7() {
+		Recognizer r = new Recognizer("line 42, 42, 42, 42notanexpression\n");
+		r.isLineAction();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isLineAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsLineActionE8() {
+		Recognizer r = new Recognizer("line 42, 42, 42, 42 nonewlineforyou");
+		r.isLineAction();
 	}
 
 	/**
@@ -607,7 +901,19 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsLoopStatement() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r1 = new Recognizer("loop {\n}\n");
+		Recognizer r2 = new Recognizer("noloop {\n}\n");
+		assertTrue(r1.isLoopStatement());
+		assertFalse(r2.isLoopStatement());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isLoopStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsLoopStatementE1() {
+		Recognizer r = new Recognizer("loop !{\n}\n");
+		r.isLoopStatement();
 	}
 
 	/**
@@ -615,7 +921,28 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsMoveAction() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r1 = new Recognizer("move 42 \n");
+		Recognizer r2 = new Recognizer("nomove 42 \n");
+		assertTrue(r1.isMoveAction());
+		assertFalse(r2.isMoveAction());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isMoveAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsMoveActionE1() {
+		Recognizer r = new Recognizer("move 42notanexpression \n");
+		r.isMoveAction();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isMoveAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsMoveActionE2() {
+		Recognizer r = new Recognizer("move 42 nonewlineforyou");
+		r.isMoveAction();
 	}
 
 	/**
@@ -623,7 +950,46 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsMoveToAction() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r1 = new Recognizer("moveto 42, 42 \n");
+		Recognizer r2 = new Recognizer("nomoveto 42, 42 \n");
+		assertTrue(r1.isMoveToAction());
+		assertFalse(r2.isMoveToAction());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isMoveToAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsMoveToActionE1() {
+		Recognizer r = new Recognizer("moveto 42notanexpression, 42 \n");
+		r.isMoveToAction();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isMoveToAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsMoveToActionE2() {
+		Recognizer r = new Recognizer("moveto 42! 42 \n");
+		r.isMoveToAction();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isMoveToAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsMoveToActionE3() {
+		Recognizer r = new Recognizer("moveto 42, 42notanexpression \n");
+		r.isMoveToAction();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isMoveToAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsMoveToActionE4() {
+		Recognizer r = new Recognizer("moveto 42, 42 nonewlineforyou");
+		r.isMoveToAction();
 	}
 
 	/**
@@ -639,7 +1005,28 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsReturnStatement() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r1 = new Recognizer("return 42 \n");
+		Recognizer r2 = new Recognizer("noreturn 42 \n");
+		assertTrue(r1.isReturnStatement());
+		assertFalse(r2.isReturnStatement());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isReturnStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsReturnStatementE1() {
+		Recognizer r = new Recognizer("return 1notanexpression \n");
+		r.isReturnStatement();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isReturnStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsReturnStatementE2() {
+		Recognizer r = new Recognizer("return 42 nolineforyou");
+		r.isReturnStatement();
 	}
 
 	/**
@@ -647,7 +1034,17 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsStatement() {
-		fail("Not yet implemented"); // TODO
+		getStatements();
+		
+		assertTrue(r1.isStatement());
+		assertTrue(r2.isStatement());
+		assertTrue(r3.isStatement());
+		assertTrue(r4.isStatement());
+		assertTrue(r5.isStatement());
+		assertTrue(r6.isStatement());
+		assertTrue(r7.isStatement());
+		
+		assertFalse(r8.isStatement());
 	}
 
 	/**
@@ -655,7 +1052,91 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsSwitchStatement() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r1 = new Recognizer("switch {\n }\n");
+		Recognizer r2 = new Recognizer("switch {\n case 1 \n }\n");
+		Recognizer r3 = new Recognizer("switch {\n case 1 \n move 42 \n }\n");
+		Recognizer r4 = new Recognizer("switch {\n case 1 \n move 42 \n turn 24 \n }\n");
+		Recognizer r5 = new Recognizer("switch {\n case 1 \n move 42 \n case two \n turn 24 \n }\n");
+		Recognizer r6 = new Recognizer("noswitch {\n }\n");
+		assertTrue(r1.isSwitchStatement());
+		assertTrue(r2.isSwitchStatement());
+		assertTrue(r3.isSwitchStatement());
+		assertTrue(r4.isSwitchStatement());
+		assertTrue(r5.isSwitchStatement());
+		
+		assertFalse(r6.isSwitchStatement());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isSwitchStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsSwitchStatementE1() {
+		Recognizer r = new Recognizer("switch !\n case 1 \n move 42 \n }\n");
+		r.isSwitchStatement();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isSwitchStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsSwitchStatementE2() {
+		Recognizer r = new Recognizer("switch {nonewlineforyou case 1 \n move 42 \n }\n");
+		r.isSwitchStatement();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isSwitchStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsSwitchStatementE3() {
+		Recognizer r = new Recognizer("switch {\n nocase 1 \n move 42 \n }\n");
+		r.isSwitchStatement();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isSwitchStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsSwitchStatementE4() {
+		Recognizer r = new Recognizer("switch {\n case 1notanexpression \n move 42 \n }\n");
+		r.isSwitchStatement();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isSwitchStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsSwitchStatementE5() {
+		Recognizer r = new Recognizer("switch {\n case 1 nonewlineforyou move 42 \n }\n");
+		r.isSwitchStatement();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isSwitchStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsSwitchStatementE6() {
+		Recognizer r = new Recognizer("switch {\n case 1 \n nomove }\n");
+		r.isSwitchStatement();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isSwitchStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsSwitchStatementE7() {
+		Recognizer r = new Recognizer("switch {\n case 1 \n move 42 \n !\n");
+		r.isSwitchStatement();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isSwitchStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsSwitchStatementE8() {
+		Recognizer r = new Recognizer("switch {\n case 1 \n move 42 \n }nonewlineforyou");
+		r.isSwitchStatement();
 	}
 
 	/**
@@ -663,7 +1144,28 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsTurnAction() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r1 = new Recognizer("turn 42 \n");
+		Recognizer r2 = new Recognizer("noturn 42 \n");
+		assertTrue(r1.isTurnAction());
+		assertFalse(r2.isTurnAction());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isTurnAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsTurnActionE1() {
+		Recognizer r = new Recognizer("turn 42notanexpression \n");
+		r.isTurnAction();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isTurnAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsTurnActionE2() {
+		Recognizer r = new Recognizer("turn 42 nonewlineforyou");
+		r.isTurnAction();
 	}
 
 	/**
@@ -671,7 +1173,28 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsTurnToAction() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r1 = new Recognizer("turnto 42 \n");
+		Recognizer r2 = new Recognizer("noturnto 42 \n");
+		assertTrue(r1.isTurnToAction());
+		assertFalse(r2.isTurnToAction());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isTurnToAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsTurnToActionE1() {
+		Recognizer r = new Recognizer("turnto 42notanexpression \n");
+		r.isTurnToAction();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isTurnToAction()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsTurnToActionE2() {
+		Recognizer r = new Recognizer("turnto 42 nonewlineforyou");
+		r.isTurnToAction();
 	}
 
 	/**
@@ -679,7 +1202,57 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsVarDeclaration() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r1 = new Recognizer("var var1 \n");
+		Recognizer r2 = new Recognizer("var var1, var2, var3 \n");
+		Recognizer r3 = new Recognizer("novar var1 \n");
+		assertTrue(r1.isVarDeclaration());
+		assertTrue(r2.isVarDeclaration());
+		assertFalse(r3.isVarDeclaration());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isVarDeclaration()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsVarDeclarationE1() {
+		Recognizer r = new Recognizer("var 1notavarname, var2 \n");
+		r.isVarDeclaration();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isVarDeclaration()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsVarDeclarationE2() {
+		Recognizer r = new Recognizer("var var1! var2 \n");
+		r.isVarDeclaration();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isVarDeclaration()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsVarDeclarationE3() {
+		Recognizer r = new Recognizer("var var1, 2notavarname \n");
+		r.isVarDeclaration();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isVarDeclaration()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsVarDeclarationE4() {
+		Recognizer r = new Recognizer("var var1, var2, \n");
+		r.isVarDeclaration();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isVarDeclaration()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsVarDeclarationE5() {
+		Recognizer r = new Recognizer("var var1, var2 nonewlineforyou");
+		r.isVarDeclaration();
 	}
 
 }
