@@ -266,6 +266,8 @@ public class Recognizer {
 	public boolean isColorStatement() {
 		if (!keyword("color")) return false;
 		if (!nextTokenMatches(Type.KEYWORD)) error("Not a valid keyword");
+		//pushBack(); //these 2 lines are for later
+		//if (!Token.COLORS.contains(nextToken().value)) error("Invalid color"); 
 		if (!nextTokenMatches(Type.EOL)) error("Missing EOL");
 	    return true;
 	}
@@ -286,11 +288,7 @@ public class Recognizer {
 	 * @return <code>true</code> if a comparator is recognized.
 	 */
 	public boolean isComparator() {
-		if (symbol("<")) {
-			if (symbol("="));
-			return true;
-		}
-		if (symbol(">")) {
+		if (symbol("<") || symbol(">")) {
 			if (symbol("="));
 			return true;
 		}

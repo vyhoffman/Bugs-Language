@@ -703,8 +703,9 @@ public class RecognizerTest {
 	public void testIsColorStatement() {
         Recognizer ra = new Recognizer("< <= abc > >= 25 != = #");
         Recognizer rb = new Recognizer("color darkGray \n");
-        Recognizer rc = new Recognizer("color do \n");
-        Recognizer rd = new Recognizer("notcolor do \n");
+        Recognizer rc = new Recognizer("color do \n"); //is ok for this part
+        		// but will need to fail later bc not a color (have code ready)
+        Recognizer rd = new Recognizer("notcolor darkGray \n");
         assertFalse(ra.isColorStatement());
         assertTrue(rb.isColorStatement());
         assertTrue(rc.isColorStatement());
