@@ -51,8 +51,11 @@ public class Recognizer {
 	* @return <code>true</code> if an expression is recognized.
 	*/
 	public boolean isExpression() {
-		// TODO You need to expand this definition!
-		return isArithmeticExpression();
+		if (!isArithmeticExpression()) return false;
+		while (isComparator()) {
+			if(!isArithmeticExpression()) error("Invalid expression");
+		}
+		return true;
 	}
 	/**TODO check this
 	* Tries to recognize an &lt;arithmetic expression&gt;.
@@ -235,7 +238,6 @@ public class Recognizer {
 	 * @return <code>true</code> if a color statement is recognized.
 	 */
 	public boolean isColorStatement() {
-	    //TODO
 		if (!keyword("color")) return false;
 		if (!nextTokenMatches(Type.KEYWORD)) error("Not a valid keyword");
 		if (!nextTokenMatches(Type.EOL)) error("Missing EOL");
@@ -285,7 +287,11 @@ public class Recognizer {
 	 */
 	public boolean isDoStatement() {
 	    //TODO
-	    return false;
+		if (!keyword("do")) return false;
+		if (!isVariable()) error("Missing variable after 'do'");
+		if (isParameterList());
+		if (!isEol()) error("Missing EOL");
+	    return true;
 	}
 	
 	/**
@@ -317,8 +323,9 @@ public class Recognizer {
 	 * @return <code>true</code> if a function call is recognized.
 	 */
 	public boolean isFunctionCall() {
-	    //TODO
-	    return false;
+		if (!name() && !nextTokenMatches(Type.KEYWORD)) return false;
+		if (!isParameterList()) error("Missing/invalid parameter list");
+		return true;
 	}
 	
 	/**

@@ -321,7 +321,32 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsExpression() {
-		fail("Not yet implemented"); // TODO
+		assertTrue(r1.isExpression());	// "250"
+		assertTrue(r2.isExpression());	// "hello"
+		assertTrue(r3.isExpression());	// "(xyz + 3)"
+		assertTrue(r4.isExpression());	// "12 * 5 - 3 * 4 / 6 + 8"
+		assertTrue(r5.isExpression());	// "12 * ((5 - 3) * 4) / 6 + (8)"
+		assertFalse(r0.isExpression());	// ""
+		assertFalse(r8.isExpression());	// "#"
+		
+		Recognizer r6 = new Recognizer("-function()");
+		assertTrue(r6.isExpression());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isExpression()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsExpressionE1() {
+		assertFalse(r6.isExpression());	// "17 +"
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isExpression()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsExpressionE2() {
+		assertFalse(r7.isExpression());	// "22 *"
 	}
 
 	/**
@@ -393,7 +418,7 @@ public class RecognizerTest {
 	@Test(expected=SyntaxException.class)
 	public void testIsColorStatementE1() {
         Recognizer r = new Recognizer("color notakeyword \n");
-        assertFalse(r.isColorStatement());
+        r.isColorStatement();
 	}
 
 	/**
@@ -402,7 +427,7 @@ public class RecognizerTest {
 	@Test(expected=SyntaxException.class)
 	public void testIsColorStatementE2() {
         Recognizer r = new Recognizer("color color color");
-        assertFalse(r.isColorStatement());
+        r.isColorStatement();
 	}
 
 	/**
@@ -438,7 +463,40 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsDoStatement() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r2 = new Recognizer("do something \n");
+		Recognizer r5 = new Recognizer("do something (1, 2, 3) \n");
+		assertTrue(r2.isDoStatement());
+		assertTrue(r5.isDoStatement());
+		
+		assertFalse(r0.isDoStatement());
+		assertFalse(r3.isDoStatement());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isDoStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsDoStatementE1() {
+		Recognizer r1 = new Recognizer("do 12 \n");
+		r1.isDoStatement();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isDoStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsDoStatementE2() {
+		Recognizer r3 = new Recognizer("do something");
+		r3.isDoStatement();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isDoStatement()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsDoStatementE3() {
+		Recognizer r4 = new Recognizer("do something (invalid list) \n");
+		r4.isDoStatement();
 	}
 
 	/**
@@ -472,7 +530,52 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsFunctionCall() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r1 = new Recognizer("moveto(10)");
+		Recognizer r2 = new Recognizer("dosomething()");
+		Recognizer r3 = new Recognizer("do(10 + 10, 20 * 20, 3 - 3)");
+		Recognizer r4 = new Recognizer("()");
+		Recognizer r5 = new Recognizer("10()");
+		assertTrue(r1.isFunctionCall());
+		assertTrue(r2.isFunctionCall());
+		assertTrue(r3.isFunctionCall());
+		assertFalse(r4.isFunctionCall());
+		assertFalse(r5.isFunctionCall());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isFunctionCall()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsFunctionCallE1() {
+		Recognizer r = new Recognizer("return(10+)");
+		r.isFunctionCall();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isFunctionCall()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsFunctionCallE2() {
+		Recognizer r = new Recognizer("return(");
+		r.isFunctionCall();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isFunctionCall()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsFunctionCallE3() {
+		Recognizer r = new Recognizer("return");
+		r.isFunctionCall();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isFunctionCall()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsFunctionCallE4() {
+		Recognizer r = new Recognizer("return(10,2,)");
+		r.isFunctionCall();
 	}
 
 	/**
