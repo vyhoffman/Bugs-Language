@@ -195,8 +195,14 @@ public class Recognizer {
 	 * @return <code>true</code> if an allbugs code is recognized.
 	 */
 	public boolean isAllbugsCode() {
-	    //TODO
-	    return false;
+		if (!keyword("Allbugs")) return false;
+		if (!symbol("{")) error("Missing '{'");
+		if (!isEol()) error("Missing EOL");
+		while (isVarDeclaration());
+		while (isFunctionDefinition());
+		if (!symbol("}")) error("Missing '}'");
+		if (!isEol()) error("Missing EOL");
+	    return true;
 	}
 	
 	/**
@@ -238,8 +244,18 @@ public class Recognizer {
 	 * @return <code>true</code> if a bug definition is recognized.
 	 */
 	public boolean isBugDefinition() {
-	    //TODO
-	    return false;
+		if (!keyword("Bug")) return false;
+		if (!name()) error("Invalid name");
+		if (!symbol("{")) error("Missing '{'");
+		if (!isEol()) error("Missing EOL");
+		while (isVarDeclaration());
+		if (isInitializationBlock());
+		if (!isCommand()) error("Missing/invalid command");
+		while (isCommand());
+		while (isFunctionDefinition());
+		if (!symbol("}")) error("Missing '}'");
+		if (!isEol()) error("Missing EOL");
+	    return true;
 	}
 	
 	/**
@@ -261,7 +277,6 @@ public class Recognizer {
 	 * @return <code>true</code> if a command is recognized.
 	 */
 	public boolean isCommand() {
-	    //TODO
 	    return isAction() || isStatement();
 	}
 	
@@ -363,8 +378,9 @@ public class Recognizer {
 	 * @return <code>true</code> if an initialization block is recognized.
 	 */
 	public boolean isInitializationBlock() {
-	    //TODO
-	    return false;
+		if (!keyword("initially")) return false;
+		if (!isBlock()) error("Missing/invalid block");
+	    return true;
 	}
 	
 	/**
@@ -430,8 +446,13 @@ public class Recognizer {
 	 * @return <code>true</code> if a program is recognized.
 	 */
 	public boolean isProgram() {
-	    //TODO
-	    return false;
+		if (!isAllbugsCode()) {
+			if (!isBugDefinition()) return false;
+		}
+		else if (!isBugDefinition()) error("Missing bug definition(s)");
+		while (isBugDefinition());
+		if (!nextTokenMatches(Type.EOF)) error("Invalid program format");
+	    return true;
 	}
 	
 	/**

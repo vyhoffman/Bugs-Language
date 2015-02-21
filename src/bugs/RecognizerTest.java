@@ -377,13 +377,13 @@ public class RecognizerTest {
 		assertFalse(r7.isExpression());	// "22 *"
 	}
 
-	/**
-	 * Test method for {@link bugs.Recognizer#isUnsignedFactor()}.
-	 */
-	@Test
-	public void testIsUnsignedFactor() {
-		fail("Not yet implemented"); // TODO
-	}
+//	/**
+//	 * Test method for {@link bugs.Recognizer#isUnsignedFactor()}.
+//	 */
+//	@Test
+//	public void testIsUnsignedFactor() {
+//		fail("Not yet implemented"); // TODO
+//	} // this was created by eclipse bc was apparently not in original...?
 
 	/**
 	 * Test method for {@link bugs.Recognizer#isAction()}.
@@ -407,7 +407,76 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsAllbugsCode() {
-		fail("Not yet implemented"); // TODO
+        Recognizer r1 = new Recognizer("Allbugs {\n var myvar1 \n var myvar2 \n "+
+        		"define fn1 {\n}\n define fn2 {\n}\n }\n");
+        Recognizer r2 = new Recognizer("Allbugs {\n var myvar1 \n "+
+        		"define fn1 {\n}\n }\n");
+        Recognizer r3 = new Recognizer("Allbugs {\n }\n");
+        Recognizer r4 = new Recognizer("notAllbugs {\n }\n");
+        assertTrue(r1.isAllbugsCode());
+        assertTrue(r2.isAllbugsCode());
+        assertTrue(r3.isAllbugsCode());
+        assertFalse(r4.isAllbugsCode());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isAllbugsCode()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsAllbugsCodeE1() {
+        Recognizer r = new Recognizer("Allbugs !\n var myvar1 \n "+
+        		"define fn1 {\n}\n }\n");
+        r.isAllbugsCode();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isAllbugsCode()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsAllbugsCodeE2() {
+        Recognizer r = new Recognizer("Allbugs {nonewlineforyou var myvar1 \n "+
+        		"define fn1 {\n}\n }\n");
+        r.isAllbugsCode();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isAllbugsCode()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsAllbugsCodeE3() {
+        Recognizer r = new Recognizer("Allbugs {\n novar myvar1 \n "+
+        		"define fn1 {\n}\n }\n");
+        r.isAllbugsCode();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isAllbugsCode()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsAllbugsCodeE4() {
+        Recognizer r = new Recognizer("Allbugs {\n var myvar1 \n "+
+        		"nodefine fn1 {\n}\n }\n");
+        r.isAllbugsCode();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isAllbugsCode()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsAllbugsCodeE5() {
+        Recognizer r = new Recognizer("Allbugs {\n var myvar1 \n var myvar2 \n"+
+        		"define fn1 {\n}\n !\n");
+        r.isAllbugsCode();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isAllbugsCode()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsAllbugsCodeE6() {
+        Recognizer r = new Recognizer("Allbugs {\n var myvar1 \n "+
+        		"define fn1 {\n}\n } nonewlineforyou");
+        r.isAllbugsCode();
 	}
 
 	/**
@@ -504,7 +573,127 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsBugDefinition() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r1 = new Recognizer("Bug mybug {\n var myvar1 \n var myvar2 "+
+				"\n initially {\n}\n turn 42 \n move 42 \n color darkGray \n "+
+				"define fn1 {\n}\n define fn2 {\n}\n }\n");
+		Recognizer r2 = new Recognizer("Bug mybug {\n var myvar1 \n "+
+				"initially {\n}\n turn 42 \n move 42 \n define fn1 {\n}\n }\n");
+		Recognizer r3 = new Recognizer("Bug mybug {\n turn 42 \n }\n");
+		Recognizer r4 = new Recognizer("noBug mybug {\n turn 42 \n }\n");
+		assertTrue(r1.isBugDefinition());
+		assertTrue(r2.isBugDefinition());
+		assertTrue(r3.isBugDefinition());
+		assertFalse(r4.isBugDefinition());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isBugDefinition()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsBugDefinitionE1() {
+		Recognizer r = new Recognizer("Bug 1badvarname {\n var myvar1 \n "+
+				"initially {\n}\n turn 42 \n move 42 \n define fn1 {\n}\n }\n");
+		r.isBugDefinition();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isBugDefinition()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsBugDefinitionE2() {
+		Recognizer r = new Recognizer("Bug mybug !\n var myvar1 \n "+
+				"initially {\n}\n turn 42 \n move 42 \n define fn1 {\n}\n }\n");
+		r.isBugDefinition();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isBugDefinition()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsBugDefinitionE3() {
+		Recognizer r = new Recognizer("Bug mybug {nolineforyou var myvar1 \n "+
+				"initially {\n}\n turn 42 \n move 42 \n define fn1 {\n}\n }\n");
+		r.isBugDefinition();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isBugDefinition()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsBugDefinitionE4() {
+		Recognizer r = new Recognizer("Bug mybug {\n novar myvar1 \n "+
+				"initially {\n}\n turn 42 \n move 42 \n define fn1 {\n}\n }\n");
+		r.isBugDefinition();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isBugDefinition()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsBugDefinitionE5() {
+		Recognizer r = new Recognizer("Bug mybug {\n var myvar1 \n "+
+				"notinitially {\n}\n turn 42 \n move 42 \n define fn1 {\n}\n }\n");
+		r.isBugDefinition();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isBugDefinition()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsBugDefinitionE6() {
+		Recognizer r = new Recognizer("Bug mybug {\n var myvar1 \n "+
+				"initially {\n}\n noturn 42 \n move 42 \n define fn1 {\n}\n }\n");
+		r.isBugDefinition();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isBugDefinition()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsBugDefinitionE7() {
+		Recognizer r = new Recognizer("Bug mybug {\n var myvar1 \n "+
+				"initially {\n}\n turn 42 \n nomove 42 \n define fn1 {\n}\n }\n");
+		r.isBugDefinition();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isBugDefinition()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsBugDefinitionE8() {
+		Recognizer r = new Recognizer("Bug mybug {\n var myvar1 \n "+
+				"initially {\n}\n turn 42 \n move 42 \n nodefine fn1 {\n}\n }\n");
+		r.isBugDefinition();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isBugDefinition()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsBugDefinitionE9() {
+		Recognizer r = new Recognizer("Bug mybug {\n var myvar1 \n "+
+				"initially {\n}\n turn 42 \n move 42 \n define fn1 {\n}\n !\n");
+		r.isBugDefinition();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isBugDefinition()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsBugDefinitionE10() {
+		Recognizer r = new Recognizer("Bug mybug {\n var myvar1 \n "+
+				"initially {\n}\n turn 42 \n move 42 \n define fn1 {\n}\n }nolineforyou");
+		r.isBugDefinition();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isBugDefinition()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsBugDefinitionE11() {
+		Recognizer r = new Recognizer("Bug mybug {\n var myvar1 \n "+
+				"initially {\n}\n initially {\n}\n turn 42 \n }\n");
+		r.isBugDefinition();
 	}
 
 	/**
@@ -810,7 +999,19 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsInitializationBlock() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r1 = new Recognizer("initially {\n }\n");
+		Recognizer r2 = new Recognizer("notinitially {\n }\n");
+		assertTrue(r1.isInitializationBlock());
+		assertFalse(r2.isInitializationBlock());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isInitializationBlock()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsInitializationBlockE1() {
+		Recognizer r = new Recognizer("initially notablock");
+		r.isInitializationBlock();
 	}
 
 	/**
@@ -997,7 +1198,59 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsProgram() {
-		fail("Not yet implemented"); // TODO
+		Recognizer r1 = new Recognizer("Allbugs {\n}\n "+
+				"Bug mybug1 {\n turn 42 \n }\n"+
+				"Bug mybug2 {\n turn 42 \n }\n"+
+				"Bug mybug3 {\n turn 42 \n }\n");
+		Recognizer r2 = new Recognizer("Allbugs {\n}\n "+
+				"Bug mybug1 {\n turn 42 \n }\n"+
+				"Bug mybug2 {\n turn 42 \n }\n");
+		Recognizer r3 = new Recognizer("Allbugs {\n}\n "+
+				"Bug mybug1 {\n turn 42 \n }\n");
+		Recognizer r4 = new Recognizer("Bug mybug1 {\n turn 42 \n }\n");
+		Recognizer r5 = new Recognizer("noBug mybug1 {\n turn 42 \n }\n");
+		Recognizer r6 = new Recognizer("noAllbugs {\n}\n");
+		assertTrue(r1.isProgram());
+		assertTrue(r2.isProgram());
+		assertTrue(r3.isProgram());
+		assertTrue(r4.isProgram());
+		
+		assertFalse(r5.isProgram());
+		assertFalse(r6.isProgram());
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isProgram()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsProgramE1() {
+		Recognizer r = new Recognizer("Allbugs {\n}\n "+
+				"Allbugs {\n}\n "+
+				"Bug mybug1 {\n turn 42 \n }\n"+
+				"Bug mybug2 {\n turn 42 \n }\n");
+		r.isProgram();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isProgram()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsProgramE2() {
+		Recognizer r = new Recognizer("Allbugs {\n}\n "+
+				"noBug mybug1 {\n turn 42 \n }\n"+
+				"Bug mybug2 {\n turn 42 \n }\n");
+		r.isProgram();
+	}
+
+	/**
+	 * Test method for {@link bugs.Recognizer#isProgram()}.
+	 */
+	@Test(expected=SyntaxException.class)
+	public void testIsProgramE3() {
+		Recognizer r = new Recognizer("Allbugs {\n}\n "+
+				"Bug mybug1 {\n turn 42 \n }\n"+
+				"noBug mybug2 {\n turn 42 \n }\n");
+		r.isProgram();
 	}
 
 	/**
