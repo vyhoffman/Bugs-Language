@@ -388,9 +388,10 @@ public class Parser {
 	
 	/**
 	 * Tries to build a &lt;program&gt; on the global stack.
-	 * <pre>&lt;program&gt; ::= [ &lt;allbugs code&gt; ]
+	 * <pre> &lt;program&gt; ::= [ &lt;allbugs code&gt; ]
 	 * &lt;bug definition&gt;
-	 * { &lt;bug definition&gt; }</pre>
+	 * { &lt;bug definition&gt; }
+	 * &lt;EOF&gt;</pre>
 	 * @return <code>true</code> if a program is recognized.
 	 */
 	public boolean isProgram() {
