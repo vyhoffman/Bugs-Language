@@ -237,7 +237,6 @@ public class RecognizerTest {
 	 */
     @Test
     public void testSymbol() {
-    	//TODO this tests what, SYMBOL? not symbol()?
         Recognizer r = new Recognizer("++");
         assertEquals(new Token(Token.Type.SYMBOL, "+"), r.nextToken());
     }

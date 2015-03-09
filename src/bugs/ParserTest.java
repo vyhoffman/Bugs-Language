@@ -12,6 +12,13 @@ import org.junit.Test;
 import tree.Tree;
 
 
+/**Tests the , Parser class (a parser for the Bugs language used in CIT 594,
+ * spring 2015).
+ * project
+ * @author Nicki Hoffman
+ * @author Dave Matuszek
+ *
+ */
 public class ParserTest {
     Parser parser;
 
@@ -29,127 +36,543 @@ public class ParserTest {
     
     @Test
     public void testIsAction() {
-            //TODO write test
+    	Tree<Token> expected;
+    	
+		use("move 42 \n");
+		assertTrue(parser.isAction());
+		expected = tree("move", "42.0");
+		assertStackTopEquals(expected);
+		
+		use("moveto 42, 43 \n");
+		assertTrue(parser.isAction());
+		expected = tree("moveto", "42.0", "43.0");
+		assertStackTopEquals(expected);
+		
+		use("turn 42 \n");
+		assertTrue(parser.isAction());
+		expected = tree("turn", "42.0");
+		assertStackTopEquals(expected);
+		
+		use("turnto 42 \n");
+		assertTrue(parser.isAction());
+		expected = tree("turnto", "42.0");
+		assertStackTopEquals(expected);
+		
+		use("line 42, 43, 44, 45 \n");
+		assertTrue(parser.isAction());
+		expected = tree("line", "42.0", "43.0", "44.0", "45.0");
+		assertStackTopEquals(expected);
+		
+		use("");
+		assertFalse(parser.isAction());
+		use("loop 42 \n");
+		assertFalse(parser.isAction());
     }
         
     @Test
     public void testIsAllbugsCode() {
-            //TODO write test
+        use("Allbugs {\n var myvar1 \n var myvar2 \n "+
+        		"define fn1 {\n}\n define fn2 {\n}\n }\n");
+        assertTrue(parser.isAllbugsCode());
+        assertStackTopEquals(tree("Allbugs", 
+        					 tree("list", tree("var", "myvar1"), 
+        							 	  tree("var", "myvar2")), 
+        					 tree("list", tree("define", "fn1", tree("var"), tree("block")),
+        							 	  tree("define", "fn2", tree("var"), tree("block")))));
+        
+        use("Allbugs {\n var myvar1 \n "+
+        		"define fn1 {\n}\n }\n");
+        assertTrue(parser.isAllbugsCode());
+        assertStackTopEquals(tree("Allbugs", 
+        					 tree("list", tree("var", "myvar1")), 
+        					 tree("list", tree("define", "fn1", tree("var"), tree("block")))));
+        
+        use("Allbugs {\n }\n");
+        assertTrue(parser.isAllbugsCode());
+        assertStackTopEquals(tree("Allbugs", tree("list"), tree("list")));
+        
+        use("notAllbugs {\n }\n");
+        assertFalse(parser.isAllbugsCode());
     }
         
     @Test
     public void testIsAssignmentStatement() {
-            //TODO write test
+        use("myVar = 42 \n");
+        assertTrue(parser.isAssignmentStatement());
+        assertStackTopEquals(tree("assign", "myVar", "42.0"));
+        
+        use("1myVar = 42 \n");
+        assertFalse(parser.isAssignmentStatement());
     }
         
     @Test
     public void testIsBlock() {
-            //TODO write test
+		use("{\n }\n");
+		assertTrue(parser.isBlock());
+		assertStackTopEquals(tree("block"));
+		
+		use("{\n move 42 \n }\n");
+		assertTrue(parser.isBlock());
+		assertStackTopEquals(tree("block", tree("move", "42.0")));
+		
+		use("{\n move 42 \n turn 24 \n }\n");
+		assertTrue(parser.isBlock());
+		assertStackTopEquals(tree("block", tree("move", "42.0"), tree("turn", "24.0")));
+		
+		use("!{\n }\n");
+		assertFalse(parser.isBlock());
     }
         
     @Test
     public void testIsBugDefinition() {
-            //TODO write test
+		use("Bug mybug {\n var myvar1 \n var myvar2 "+
+				"\n initially {\n}\n turn 42 \n move 42 \n color darkGray \n "+
+				"define fn1 {\n}\n define fn2 {\n}\n }\n");
+		assertTrue(parser.isBugDefinition());
+		assertStackTopEquals(tree("Bug", 
+				"mybug", 
+				tree("list", tree("var", "myvar1"), tree("var", "myvar2")), 
+				tree("initially", tree("block")),
+				tree("block", tree("turn", "42.0"), tree("move", "42.0"), tree("color", "darkGray")),
+				tree("list", tree("define", "fn1", tree("var"), tree("block")), tree("define", "fn2", tree("var"), tree("block")))));
+		
+		use("Bug mybug {\n var myvar1 \n "+
+				"initially {\n}\n turn 42 \n move 42 \n define fn1 {\n}\n }\n");
+		assertTrue(parser.isBugDefinition());
+		assertStackTopEquals(tree("Bug", 
+				"mybug", 
+				tree("list", tree("var", "myvar1")), 
+				tree("initially", tree("block")),
+				tree("block", tree("turn", "42.0"), tree("move", "42.0")),
+				tree("list", tree("define", "fn1", tree("var"), tree("block")))));
+		
+		use("Bug mybug {\n turn 42 \n }\n");
+		assertTrue(parser.isBugDefinition());
+		assertStackTopEquals(tree("Bug", 
+									"mybug", 
+									tree("list"), 
+									tree("initially", tree("block")),
+									tree("block", tree("turn", "42.0")),
+									tree("list")));
+		
+		use("noBug mybug {\n turn 42 \n }\n");
+		assertFalse(parser.isBugDefinition());
     }
         
     @Test
     public void testIsColorStatement() {
-            //TODO write test
+    	Tree<Token> expected;
+    	
+        use("< <= abc > >= 25 != = #");
+        assertFalse(parser.isColorStatement());
+        
+        use("color darkGray \n");
+        assertTrue(parser.isColorStatement());
+        expected = tree("color", "darkGray");
+        assertStackTopEquals(expected);
+        
+        use("color do \n"); //is ok for this part
+        		// but will need to fail later bc not a color (have code ready)
+        assertTrue(parser.isColorStatement());
+        expected = tree("color", "do");
+        
+        use("notcolor darkGray \n");
+        assertFalse(parser.isColorStatement());
     }
         
     @Test
     public void testIsCommand() {
-            //TODO write test
+		use("move 42 \n");
+        assertTrue(parser.isCommand());
+        assertStackTopEquals(tree("move", "42.0"));
+		use("moveto 42, 42 \n");
+        assertTrue(parser.isCommand());
+        assertStackTopEquals(tree("moveto", "42.0", "42.0"));
+		use("turn 42 \n");
+        assertTrue(parser.isCommand());
+        assertStackTopEquals(tree("turn", "42.0"));
+		use("turnto 42 \n");
+        assertTrue(parser.isCommand());
+        assertStackTopEquals(tree("turnto", "42.0"));
+		use("line 42, 42, 42, 42 \n");
+        assertTrue(parser.isCommand());
+        assertStackTopEquals(tree("line", "42.0", "42.0", "42.0", "42.0"));
+        
+		use("myvar = 42 \n");
+        assertTrue(parser.isCommand());
+        assertStackTopEquals(tree("assign", "myvar", "42.0"));
+		use("loop {\n }\n");
+        assertTrue(parser.isCommand());
+        assertStackTopEquals(tree("loop", tree("block")));
+		use("exit if 42 \n");
+        assertTrue(parser.isCommand());
+        assertStackTopEquals(tree("exit", "42.0"));
+		use("switch {\n }\n");
+        assertTrue(parser.isCommand());
+        assertStackTopEquals(tree("switch"));
+		use("return 42 \n");
+        assertTrue(parser.isCommand());
+        assertStackTopEquals(tree("return", "42.0"));
+		use("do varname \n");
+        assertTrue(parser.isCommand());
+        assertStackTopEquals(tree("do", "varname", tree("var")));
+		use("color darkGray \n");
+        assertTrue(parser.isCommand());
+        assertStackTopEquals(tree("color", "darkGray"));
+        
+        use("");
+        assertFalse(parser.isCommand());
     }
         
     @Test
     public void testIsComparator() {
-            //TODO write test
+    	use("< <= abc > >= 25 != = #");
+    	assertTrue(parser.isComparator());
+    	assertStackTopEquals(tree("<"));
+    	assertTrue(parser.isComparator());
+    	assertStackTopEquals(tree("<="));
+    	assertFalse(parser.isComparator());
+    	assertStackTopEquals(tree("<="));
+    	parser.nextToken();
+    	assertTrue(parser.isComparator());
+    	assertStackTopEquals(tree(">"));
+    	assertTrue(parser.isComparator());
+    	assertStackTopEquals(tree(">="));
+    	assertFalse(parser.isComparator());
+    	assertStackTopEquals(tree(">="));
+    	parser.nextToken();
+    	assertTrue(parser.isComparator());
+    	assertStackTopEquals(tree("!="));
+    	assertTrue(parser.isComparator());
+    	assertStackTopEquals(tree("="));
+    	assertFalse(parser.isComparator());
+    	assertStackTopEquals(tree("="));
     }
         
     @Test
     public void testIsDoStatement() {
-            //TODO write test
+    	Tree<Token> expected;
+    	
+		use("do something \n");
+		assertTrue(parser.isDoStatement());
+		expected = tree("do", "something", tree("var"));
+		assertStackTopEquals(expected);
+		
+		use("do something (1, 2, 3) \n");
+		assertTrue(parser.isDoStatement());
+		expected = tree("do", "something", tree("var", "1.0", "2.0", "3.0"));
+		assertStackTopEquals(expected);
+		
+		use("");
+		assertFalse(parser.isDoStatement());
+		use("(xyz + 3)");
+		assertFalse(parser.isDoStatement());
     }
         
     @Test
     public void testIsEol() {
-            //TODO write test
+    	use("25\n30\n\n35\n\n\n\n40");
+		assertFalse(parser.isEol());
+		parser.nextToken();
+		assertTrue(parser.isEol());
+		assertFalse(parser.isEol());
+		parser.nextToken();
+		assertTrue(parser.isEol());
+		assertFalse(parser.isEol());
+		parser.nextToken();
+		assertTrue(parser.isEol());
+		assertFalse(parser.isEol());
+		assertTrue(parser.stack.empty());
     }
         
     @Test
     public void testIsExitIfStatement() {
-            //TODO write test
+		use("exit if 42 \n");
+		assertTrue(parser.isExitIfStatement());
+		assertStackTopEquals(tree("exit", "42.0"));
+		
+		use("noexit if 42 \n");
+		assertFalse(parser.isExitIfStatement());
     }
         
     @Test
     public void testIsFunctionCall() {
-            //TODO write test
+    	Tree<Token> expected;
+    	
+		use("moveto(10)");
+		assertTrue(parser.isFunctionCall());
+		expected = tree("call", "moveto", tree("var", "10.0"));
+		assertStackTopEquals(expected);
+		
+		use("dosomething()");
+		assertTrue(parser.isFunctionCall());
+		expected = tree("call", "dosomething", tree("var"));
+		assertStackTopEquals(expected);
+		
+		use("do(10 + 10, 20 * 20, 3 - 3)");
+		assertTrue(parser.isFunctionCall());
+		expected = tree("call", "do", tree("var", tree("+", "10.0", "10.0"),
+				tree("*", "20.0", "20.0"), tree("-", "3.0", "3.0")));
+		assertStackTopEquals(expected);
+		
+		use("()");
+		assertFalse(parser.isFunctionCall());
+		
+		use("10()");
+		assertFalse(parser.isFunctionCall());
     }
         
     @Test
     public void testIsFunctionDefinition() {
-            //TODO write test
+		use("define fn {\n}\n");
+		assertTrue(parser.isFunctionDefinition());
+		assertStackTopEquals(tree("define", "fn", tree("var"), tree("block")));
+		
+		use("define fn using myvar {\n}\n");
+		assertTrue(parser.isFunctionDefinition());
+		assertStackTopEquals(tree("define", "fn", tree("var", "myvar"), tree("block")));
+		
+		use("define fn using myvar1, myvar2 {\n}\n");
+		assertTrue(parser.isFunctionDefinition());
+		assertStackTopEquals(tree("define", "fn", tree("var", "myvar1", "myvar2"), tree("block")));
+		
+		use("define fn using myvar1, myvar2, myvar3 {\n}\n");
+		assertTrue(parser.isFunctionDefinition());
+		assertStackTopEquals(tree("define", "fn", tree("var", "myvar1", "myvar2", "myvar3"), tree("block")));
+		
+		use("nodefine fn {\n}\n");
+		assertFalse(parser.isFunctionDefinition());
     }
         
     @Test
     public void testIsInitializationBlock() {
-            //TODO write test
+		use("initially {\n }\n");
+		assertTrue(parser.isInitializationBlock());
+		assertStackTopEquals(tree("initially", tree("block")));
+		
+		use("notinitially {\n }\n");
+		assertFalse(parser.isInitializationBlock());
     }
         
     @Test
     public void testIsLineAction() {
-            //TODO write test
+		use("line 42, 43, 44, 45\n");
+		assertTrue(parser.isLineAction());
+		assertStackTopEquals(tree("line", "42.0", "43.0", "44.0", "45.0"));
+		
+		use("noline 42, 42, 42, 42\n");
+		assertFalse(parser.isLineAction());
     }
         
     @Test
     public void testIsLoopStatement() {
-            //TODO write test
+		use("loop {\n}\n");
+		assertTrue(parser.isLoopStatement());
+		assertStackTopEquals(tree("loop", tree("block")));
+		
+		use("noloop {\n}\n");
+		assertFalse(parser.isLoopStatement());
     }
         
     @Test
     public void testIsMoveAction() {
-            //TODO write test
+		use("move 42 \n");
+		assertTrue(parser.isMoveAction());
+		assertStackTopEquals(tree("move", "42.0"));
+		
+		use("nomove 42 \n");
+		assertFalse(parser.isMoveAction());
     }
         
     @Test
     public void testIsMoveToAction() {
-            //TODO write test
+		use("moveto 42, 43 \n");
+		assertTrue(parser.isMoveToAction());
+		assertStackTopEquals(tree("moveto", "42.0", "43.0"));
+		
+		
+		use("nomoveto 42, 43 \n");
+		assertFalse(parser.isMoveToAction());
     }
         
     @Test
     public void testIsProgram() {
-            //TODO write test
+    	Tree<Token> expected; 
+    	Tree<Token> bug1 = tree("Bug", 
+    							"mybug1", 
+    							tree("list"), 
+    							tree("initially", tree("block")), 
+    							tree("block", tree("turn", "42.0")), 
+    							tree("list"));
+    	Tree<Token> bug2 = tree("Bug", 
+								"mybug2", 
+								tree("list"), 
+								tree("initially", tree("block")), 
+								tree("block", tree("turn", "42.0")), 
+								tree("list"));
+    	Tree<Token> bug3 = tree("Bug", 
+								"mybug3", 
+								tree("list"), 
+								tree("initially", tree("block")), 
+								tree("block", tree("turn", "42.0")), 
+								tree("list"));
+    	Tree<Token> emptyAB = tree("Allbugs", tree("list"), tree("list"));
+    	
+		use("Allbugs {\n}\n "+
+				"Bug mybug1 {\n turn 42 \n }\n"+
+				"Bug mybug2 {\n turn 42 \n }\n"+
+				"Bug mybug3 {\n turn 42 \n }\n");
+		assertTrue(parser.isProgram());
+		expected = tree("program", emptyAB, tree("list", bug1, bug2, bug3));
+		assertStackTopEquals(expected);
+		
+		use("Allbugs {\n}\n "+
+				"Bug mybug1 {\n turn 42 \n }\n"+
+				"Bug mybug2 {\n turn 42 \n }\n");
+		assertTrue(parser.isProgram());
+		expected = tree("program", emptyAB, tree("list", bug1, bug2));
+		assertStackTopEquals(expected);
+		
+		use("Allbugs {\n}\n "+
+				"Bug mybug1 {\n turn 42 \n }\n");
+		assertTrue(parser.isProgram());
+		expected = tree("program", emptyAB, tree("list", bug1));
+		assertStackTopEquals(expected);
+		
+		use("Bug mybug1 {\n turn 42 \n }\n");
+		assertTrue(parser.isProgram());
+		expected = tree("program", emptyAB, tree("list", bug1));
+		assertStackTopEquals(expected);
+		
+		use("noBug mybug1 {\n turn 42 \n }\n");
+		assertFalse(parser.isProgram());
+		
+		use("noAllbugs {\n}\n");
+		assertFalse(parser.isProgram());
+    }
+    
+    @Test(expected=SyntaxException.class)
+    public void testIsProgramEOFException() {
+    	//the rule has been fixed so this breaks it now (EOF required)
+		use("Allbugs {\n}\n "+
+				"Bug mybug1 {\n turn 42 \n }\n"+
+				"noBug mybug2 {\n turn 42 \n }\n");
+		parser.isProgram();
     }
         
     @Test
     public void testIsReturnStatement() {
-            //TODO write test
+		use("return 42 \n");
+		assertTrue(parser.isReturnStatement());
+		assertStackTopEquals(tree("return", "42.0"));
+		
+		use("noreturn 42 \n");
+		assertFalse(parser.isReturnStatement());
     }
         
     @Test
     public void testIsStatement() {
-            //TODO write test
+		use("myvar = 42 \n");
+		assertTrue(parser.isStatement());
+		assertStackTopEquals(tree("assign", "myvar", "42.0"));
+		
+		use("loop {\n }\n");
+		assertTrue(parser.isStatement());
+		assertStackTopEquals(tree("loop", tree("block")));
+		
+		use("exit if 42 \n");
+		assertTrue(parser.isStatement());
+		assertStackTopEquals(tree("exit", "42.0"));
+		
+		use("switch {\n }\n");
+		assertTrue(parser.isStatement());
+		assertStackTopEquals(tree("switch"));
+		
+		use("return 42 \n");
+		assertTrue(parser.isStatement());
+		assertStackTopEquals(tree("return", "42.0"));
+		
+		use("do varname \n");
+		assertTrue(parser.isStatement());
+		assertStackTopEquals(tree("do", "varname", tree("var")));
+		
+		use("color darkGray \n");
+		assertTrue(parser.isStatement());
+		assertStackTopEquals(tree("color", "darkGray"));
+		
+		use("move 42 \n");
+		assertFalse(parser.isStatement());
     }
         
     @Test
     public void testIsSwitchStatement() {
-            //TODO write test
+    	Tree<Token> expected;
+		use("switch {\n }\n");
+		assertTrue(parser.isSwitchStatement());
+		expected = tree("switch");
+		assertStackTopEquals(expected);
+		
+		use("switch {\n case 1 \n }\n");
+		assertTrue(parser.isSwitchStatement());
+		expected = tree("switch", tree("case", "1.0", tree("block")));
+		assertStackTopEquals(expected);
+		
+		use("switch {\n case 1 \n move 42 \n }\n");
+		assertTrue(parser.isSwitchStatement());
+		expected = tree("switch", tree("case", "1.0", 
+										tree("block", tree("move", "42.0"))));
+		assertStackTopEquals(expected);
+		
+		use("switch {\n case 1 \n move 42 \n turn 24 \n }\n");
+		assertTrue(parser.isSwitchStatement());
+		expected = tree("switch", tree("case", "1.0", 
+										tree("block", tree("move", "42.0"), 
+													  tree("turn", "24.0"))));
+		assertStackTopEquals(expected);
+
+		use("switch {\n case 1 \n move 42 \n case two \n turn 24 \n }\n");
+		assertTrue(parser.isSwitchStatement());
+		expected = tree("switch", tree("case", "1.0", tree("block", tree("move", "42.0"))), 
+								  tree("case", "two", tree("block", tree("turn", "24.0"))));
+		assertStackTopEquals(expected);
+
+		
+		use("noswitch {\n }\n");
+		assertFalse(parser.isSwitchStatement());
     }
         
     @Test
     public void testIsTurnAction() {
-            //TODO write test
+		use("turn 42 \n");
+		assertTrue(parser.isTurnAction());
+		assertStackTopEquals(tree("turn", "42.0"));
+		
+		use("noturn 42 \n");
+		assertFalse(parser.isTurnAction());
     }
         
     @Test
     public void testIsTurnToAction() {
-            //TODO write test
+		use("turnto 42 \n");
+		assertTrue(parser.isTurnToAction());
+		assertStackTopEquals(tree("turnto", "42.0"));
+		
+		use("noturnto 42 \n");
+		assertFalse(parser.isTurnToAction());
     }
 
     @Test
     public void testIsVarDeclaration() {
-            //TODO write test
+		use("var var1 \n");
+		assertTrue(parser.isVarDeclaration());
+		assertStackTopEquals(tree("var", "var1"));
+		
+		use("var var1, var2, var3 \n");
+		assertTrue(parser.isVarDeclaration());
+		assertStackTopEquals(tree("var", "var1", "var2", "var3"));
+		
+		use("novar var1 \n");
+		assertFalse(parser.isVarDeclaration());
     }
     
     //***---------End of Nicki's tests-----------
