@@ -237,6 +237,8 @@ public class Parser {
 	 */
 	public boolean isDoStatement() {
 		if (!keyword("do")) return false;
+		stack.pop();			// per piazza @267, replacing "do"
+		pushNewNode("call");	// with "call"
 		if (!isVariable()) error("Missing variable after 'do'");
 		if (!isParameterList()) pushNewNode("var");
 		if (!isEol()) error("Missing EOL");

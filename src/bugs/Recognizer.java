@@ -64,7 +64,7 @@ public class Recognizer {
 	* is present but not followed by a valid &lt;expression&gt;.
 	* @return <code>true</code> if an arithmetic expression is recognized.
 	*/
-	public boolean isArithmeticExpression() { //TODO check this
+	public boolean isArithmeticExpression() {
 		if (!isTerm()) return false;
 		while (isAddOperator()) {
 			if (!isTerm()) error("Error in expression after '+' or '-'");

@@ -215,7 +215,7 @@ public class ParserTest {
         assertStackTopEquals(tree("return", "42.0"));
 		use("do varname \n");
         assertTrue(parser.isCommand());
-        assertStackTopEquals(tree("do", "varname", tree("var")));
+        assertStackTopEquals(tree("call", "varname", tree("var")));
 		use("color darkGray \n");
         assertTrue(parser.isCommand());
         assertStackTopEquals(tree("color", "darkGray"));
@@ -255,12 +255,12 @@ public class ParserTest {
     	
 		use("do something \n");
 		assertTrue(parser.isDoStatement());
-		expected = tree("do", "something", tree("var"));
+		expected = tree("call", "something", tree("var"));
 		assertStackTopEquals(expected);
 		
 		use("do something (1, 2, 3) \n");
 		assertTrue(parser.isDoStatement());
-		expected = tree("do", "something", tree("var", "1.0", "2.0", "3.0"));
+		expected = tree("call", "something", tree("var", "1.0", "2.0", "3.0"));
 		assertStackTopEquals(expected);
 		
 		use("");
@@ -494,7 +494,7 @@ public class ParserTest {
 		
 		use("do varname \n");
 		assertTrue(parser.isStatement());
-		assertStackTopEquals(tree("do", "varname", tree("var")));
+		assertStackTopEquals(tree("call", "varname", tree("var")));
 		
 		use("color darkGray \n");
 		assertTrue(parser.isStatement());
