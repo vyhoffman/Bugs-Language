@@ -299,9 +299,9 @@ public class ParserTest {
     public void testIsFunctionCall() {
     	Tree<Token> expected;
     	
-		use("moveto(10)");
+		use("dosomething(10)");
 		assertTrue(parser.isFunctionCall());
-		expected = tree("call", "moveto", tree("var", "10.0"));
+		expected = tree("call", "dosomething", tree("var", "10.0"));
 		assertStackTopEquals(expected);
 		
 		use("dosomething()");
@@ -309,12 +309,15 @@ public class ParserTest {
 		expected = tree("call", "dosomething", tree("var"));
 		assertStackTopEquals(expected);
 		
-		use("do(10 + 10, 20 * 20, 3 - 3)");
+		use("dosomething(10 + 10, 20 * 20, 3 - 3)");
 		assertTrue(parser.isFunctionCall());
-		expected = tree("call", "do", tree("var", tree("+", "10.0", "10.0"),
+		expected = tree("call", "dosomething", tree("var", tree("+", "10.0", "10.0"),
 				tree("*", "20.0", "20.0"), tree("-", "3.0", "3.0")));
 		assertStackTopEquals(expected);
 		
+		use("moveto(10)");
+		assertFalse(parser.isFunctionCall());
+
 		use("()");
 		assertFalse(parser.isFunctionCall());
 		

@@ -875,11 +875,12 @@ public class RecognizerTest {
 	 */
 	@Test
 	public void testIsFunctionCall() {
-		Recognizer r1 = new Recognizer("moveto(10)");
+		Recognizer r1 = new Recognizer("dosomething(10)");
 		Recognizer r2 = new Recognizer("dosomething()");
-		Recognizer r3 = new Recognizer("do(10 + 10, 20 * 20, 3 - 3)");
+		Recognizer r3 = new Recognizer("dosomething(10 + 10, 20 * 20, 3 - 3)");
 		Recognizer r4 = new Recognizer("()");
 		Recognizer r5 = new Recognizer("10()");
+		Recognizer r6 = new Recognizer("moveto(10)");
 		assertTrue(r1.isFunctionCall());
 		assertTrue(r2.isFunctionCall());
 		assertTrue(r3.isFunctionCall());
@@ -892,7 +893,7 @@ public class RecognizerTest {
 	 */
 	@Test(expected=SyntaxException.class)
 	public void testIsFunctionCallE1() {
-		Recognizer r = new Recognizer("return(10+)");
+		Recognizer r = new Recognizer("dosomething(10+)");
 		r.isFunctionCall();
 	}
 
@@ -901,7 +902,7 @@ public class RecognizerTest {
 	 */
 	@Test(expected=SyntaxException.class)
 	public void testIsFunctionCallE2() {
-		Recognizer r = new Recognizer("return(");
+		Recognizer r = new Recognizer("dosomething(");
 		r.isFunctionCall();
 	}
 
@@ -910,7 +911,7 @@ public class RecognizerTest {
 	 */
 	@Test(expected=SyntaxException.class)
 	public void testIsFunctionCallE3() {
-		Recognizer r = new Recognizer("return");
+		Recognizer r = new Recognizer("dosomething");
 		r.isFunctionCall();
 	}
 
@@ -919,7 +920,7 @@ public class RecognizerTest {
 	 */
 	@Test(expected=SyntaxException.class)
 	public void testIsFunctionCallE4() {
-		Recognizer r = new Recognizer("return(10,2,)");
+		Recognizer r = new Recognizer("dosomething(10,2,)");
 		r.isFunctionCall();
 	}
 

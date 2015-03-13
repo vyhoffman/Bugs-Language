@@ -347,7 +347,7 @@ public class Recognizer {
 	 * @return <code>true</code> if a function call is recognized.
 	 */
 	public boolean isFunctionCall() {
-		if (!name() && !nextTokenMatches(Type.KEYWORD)) return false;
+		if (!name()/* && !nextTokenMatches(Type.KEYWORD)*/) return false;
 		if (!isParameterList()) error("Missing/invalid parameter list");
 		return true;
 	}
