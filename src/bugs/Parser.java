@@ -397,6 +397,8 @@ public class Parser {
 	 * @return <code>true</code> if a program is recognized.
 	 */
 	public boolean isProgram() {
+		isEol(); 		// bc Dave says Bugs can have comments (P @271) and
+						// comments leave \n lying around all over the place
 		pushNewNode("program");
 		if (!isAllbugsCode()) {
 			pushNewNode("Allbugs");
