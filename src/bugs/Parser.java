@@ -295,6 +295,8 @@ public class Parser {
 	 */
 	public boolean isFunctionDefinition() {
 		if (!keyword("define")) return false;
+		stack.pop();
+		pushNewNode("function");
 		if (!name()) error("Invalid name");
 		pushNewNode("var");				// instructions call it a var block, so.
 		if (keyword("using")) {

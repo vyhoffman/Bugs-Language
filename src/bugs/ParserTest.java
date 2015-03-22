@@ -77,15 +77,15 @@ public class ParserTest {
         assertStackTopEquals(tree("Allbugs", 
         					 tree("list", tree("var", "myvar1"), 
         							 	  tree("var", "myvar2")), 
-        					 tree("list", tree("define", "fn1", tree("var"), tree("block")),
-        							 	  tree("define", "fn2", tree("var"), tree("block")))));
+        					 tree("list", tree("function", "fn1", tree("var"), tree("block")),
+        							 	  tree("function", "fn2", tree("var"), tree("block")))));
         
         use("Allbugs {\n var myvar1 \n "+
         		"define fn1 {\n}\n }\n");
         assertTrue(parser.isAllbugsCode());
         assertStackTopEquals(tree("Allbugs", 
         					 tree("list", tree("var", "myvar1")), 
-        					 tree("list", tree("define", "fn1", tree("var"), tree("block")))));
+        					 tree("list", tree("function", "fn1", tree("var"), tree("block")))));
         
         use("Allbugs {\n }\n");
         assertTrue(parser.isAllbugsCode());
@@ -134,7 +134,7 @@ public class ParserTest {
 				tree("list", tree("var", "myvar1"), tree("var", "myvar2")), 
 				tree("initially", tree("block")),
 				tree("block", tree("turn", "42.0"), tree("move", "42.0"), tree("color", "darkGray")),
-				tree("list", tree("define", "fn1", tree("var"), tree("block")), tree("define", "fn2", tree("var"), tree("block")))));
+				tree("list", tree("function", "fn1", tree("var"), tree("block")), tree("function", "fn2", tree("var"), tree("block")))));
 		
 		use("Bug mybug {\n var myvar1 \n "+
 				"initially {\n}\n turn 42 \n move 42 \n define fn1 {\n}\n }\n");
@@ -144,7 +144,7 @@ public class ParserTest {
 				tree("list", tree("var", "myvar1")), 
 				tree("initially", tree("block")),
 				tree("block", tree("turn", "42.0"), tree("move", "42.0")),
-				tree("list", tree("define", "fn1", tree("var"), tree("block")))));
+				tree("list", tree("function", "fn1", tree("var"), tree("block")))));
 		
 		use("Bug mybug {\n turn 42 \n }\n");
 		assertTrue(parser.isBugDefinition());
@@ -329,19 +329,19 @@ public class ParserTest {
     public void testIsFunctionDefinition() {
 		use("define fn {\n}\n");
 		assertTrue(parser.isFunctionDefinition());
-		assertStackTopEquals(tree("define", "fn", tree("var"), tree("block")));
+		assertStackTopEquals(tree("function", "fn", tree("var"), tree("block")));
 		
 		use("define fn using myvar {\n}\n");
 		assertTrue(parser.isFunctionDefinition());
-		assertStackTopEquals(tree("define", "fn", tree("var", "myvar"), tree("block")));
+		assertStackTopEquals(tree("function", "fn", tree("var", "myvar"), tree("block")));
 		
 		use("define fn using myvar1, myvar2 {\n}\n");
 		assertTrue(parser.isFunctionDefinition());
-		assertStackTopEquals(tree("define", "fn", tree("var", "myvar1", "myvar2"), tree("block")));
+		assertStackTopEquals(tree("function", "fn", tree("var", "myvar1", "myvar2"), tree("block")));
 		
 		use("define fn using myvar1, myvar2, myvar3 {\n}\n");
 		assertTrue(parser.isFunctionDefinition());
-		assertStackTopEquals(tree("define", "fn", tree("var", "myvar1", "myvar2", "myvar3"), tree("block")));
+		assertStackTopEquals(tree("function", "fn", tree("var", "myvar1", "myvar2", "myvar3"), tree("block")));
 		
 		use("nodefine fn {\n}\n");
 		assertFalse(parser.isFunctionDefinition());

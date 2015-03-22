@@ -14,11 +14,109 @@ public class Bug {
 	HashMap<String, Tree<Token>> functions = new HashMap<String, Tree<Token>>();
 	HashMap<String, Double> variables = new HashMap<String, Double>();
 	String name;
-	Color color = Color.BLACK;
-	double x = 0.0;
-	double y = 0.0;
-	double angle = 0.0;
-	boolean exitLoop = false;
+	Color color;
+	double x, y, angle;
+	boolean exitLoop;
+	static double e = 0.001;
+	
+	/**Bug constructor
+	 * @param name Bug's name
+	 */
+	Bug(String name) {
+		this.name = name;
+		color = Color.BLACK;
+		x = 0.0;
+		y = 0.0;
+		angle = 0.0;
+		exitLoop = false;
+	}
+	
+	/**Returns the Bug's name.
+	 * @return String value of Bug's name field
+	 */
+	String getName() {
+		return name;
+	}
+	
+	/**Sets the Bug's name to the string provided. For testing only.
+	 * @param name to set
+	 */
+	void setName(String name) {
+		this.name = name;
+	}
+	
+	/**Returns the Bug's current color.
+	 * @return java.awt.Color value of Bug's color field
+	 */
+	Color getColor() {
+		return color;
+	}
+	
+	/**Sets the Bug's color to the Color provided. For testing only.
+	 * @param color to set
+	 */
+	void setColor(Color color) {
+		this.color = color;
+	}
+	
+	/**Returns Bug's current x coordinate.
+	 * @return double value of Bug's x field
+	 */
+	double getX() {
+		return x;
+	}
+	
+	/**Sets the Bug's x coordinate to the value provided. For testing only.
+	 * @param x value to set
+	 */
+	void setX(double x) {
+		this.x = x;
+	}
+	
+	/**Returns Bug's current y coordinate.
+	 * @return double value of Bug's y field
+	 */
+	double getY() {
+		return y;
+	}
+	
+	/**Sets the Bug's y coordinate to the value provided. For testing only.
+	 * @param y value to set
+	 */
+	void setY(double y) {
+		this.y = y;
+	}
+	
+	/**Returns Bug's current angle.
+	 * @return double value of Bug's angle field
+	 */
+	double getAngle() {
+		return angle;
+	}
+	
+	/**Sets Bug's angle field to the value provided. For testing only.
+	 * @param angle to set
+	 */
+	void setAngle(double angle) {
+		this.angle = angle;
+	}
+	
+	/**Returns true if Bug is currently set to exit a loop, otherwise false.
+	 * @return boolean value of Bug's exitLoop field
+	 */
+	boolean getExitLoop() {
+		return exitLoop;
+	}
+	
+	/**Sets Bug's exitLoop value to the boolean provided. For testing only.
+	 * @param exitLoop value to set
+	 */
+	void setExitLoop(boolean exitLoop) {
+		this.exitLoop = exitLoop;
+	}
+	
+	//-----------End of helper/testing methods
+	//-----------Primary functions below
 	
 	/**Stores the parameter value under the key variable in the list
 	 * of variables (or updates the appropriate instance variable if it is
@@ -55,66 +153,60 @@ public class Bug {
 	public double evaluate(Tree<Token> tree) {
 		switch(tree.getValue().value) {
 		case "+":
-			// TODO test
 			if (tree.getNumberOfChildren() == 1) {
 				return evaluate(tree.getChild(0));
 			} else {
 				return evaluate(tree.getChild(0)) + evaluate(tree.getChild(1));
 			}
 		case "-":
-			// TODO test
 			if (tree.getNumberOfChildren() == 1) {
-				return evaluate(tree.getChild(0));
+				return -evaluate(tree.getChild(0));
 			} else {
 				return evaluate(tree.getChild(0)) - evaluate(tree.getChild(1));
 			}
 		case "*":
-			// TODO test
 			return evaluate(tree.getChild(0)) * evaluate(tree.getChild(1));
 		case "/":
-			// TODO test
 			return evaluate(tree.getChild(0)) / evaluate(tree.getChild(1));
 		case "<":
-			// TODO test
-			if (evaluate(tree.getChild(0)) - evaluate(tree.getChild(1)) < -0.001) {
+			if (evaluate(tree.getChild(0)) - evaluate(tree.getChild(1)) < -e) {
 				return 1.0;
 			}
 			return 0.0;
 		case "<=":
-			// TODO test
-			if (evaluate(tree.getChild(0)) - evaluate(tree.getChild(1)) <= 0.001) {
+			if (evaluate(tree.getChild(0)) - evaluate(tree.getChild(1)) <= e) {
 				return 1.0;
 			}
 			return 0.0;
 		case "=":
-			// TODO test
 			double d = evaluate(tree.getChild(0)) - evaluate(tree.getChild(1));
-			if (d < 0.001 && d > -0.001) return 1.0;
+			if (Math.abs(d) <= e) return 1.0;
 			return 0.0;
 		case ">=":
-			// TODO test
-			if (evaluate(tree.getChild(0)) - evaluate(tree.getChild(1)) >= -0.001) {
+			if (evaluate(tree.getChild(0)) - evaluate(tree.getChild(1)) >= -e) {
 				return 1.0;
 			}
 			return 0.0;
 		case ">":
-			// TODO test
-			if (evaluate(tree.getChild(0)) - evaluate(tree.getChild(1)) > 0.001) {
+			if (evaluate(tree.getChild(0)) - evaluate(tree.getChild(1)) > e) {
 				return 1.0;
 			}
 			return 0.0;
 		case "case":
-			// TODO test
 			double result = evaluate(tree.getChild(0));
-			if (result < -0.001 || result > 0.001) interpret(tree.getChild(1));
+			if (Math.abs(result) > e) interpret(tree.getChild(1));
 			return result;
 		case "call":
 			// Not this week
 			break;
 		default:
-			// TODO if it's a leaf/just a number
+			// if it's a leaf/just a number
 			if (tree.getNumberOfChildren() == 0) {
-				return Double.parseDouble(tree.getValue().value);
+				try {
+					return Double.parseDouble(tree.getValue().value);					
+				} catch (Exception e) {
+					return fetch(tree.getValue().value);
+				}
 			}
 		}
 		return 0;
@@ -135,7 +227,6 @@ public class Bug {
 			// Not this week
 			break;
 		case "Bug":
-			// TODO test
 			// Save the name of the Bug in an instance variable.
 			name = tree.getChild(0).getValue().value; // ???
 			interpret(tree.getChild(1)); // Interpret the list of var declarations.
@@ -144,46 +235,46 @@ public class Bug {
 			// For this assignment, ignore the list of function declarations.
 			break;
 		case "list":
-			// TODO test
+			for (int i = 0; i < tree.getNumberOfChildren(); i++) {
+				if (exitLoop) break;
+				interpret(tree.getChild(i));
+			}
+			break;
+		case "block":
 			for (int i = 0; i < tree.getNumberOfChildren(); i++) {
 				if (exitLoop) break;
 				interpret(tree.getChild(i));
 			}
 			break;
 		case "var":
-			// TODO test
 			for (int i = 0; i < tree.getNumberOfChildren(); i++) {
 				store(tree.getChild(i).getValue().value, 0.0);
 			}
 			break;
 		case "initially":
-			// TODO test
-			//interpret(tree.getChild(0)); // interpret(block) DNE
-			Tree<Token> tempT = tree.getChild(0);
-			for (int i = 0; i < tempT.getNumberOfChildren(); i++) {
-				interpret(tempT.getChild(i));
-			}
+			interpret(tree.getChild(0)); // interpret(block) --added block case
 			break;
 		case "move":
-			// TODO test
 			double tempD = evaluate(tree.getChild(0));
-			y -= Math.sin(angle) * tempD; // sin(270) = -1; 270 is down. WHY
-			x += Math.cos(angle) * tempD;
+			double dx = Math.cos(angle * Math.PI / 180) * tempD;
+			double dy = -(Math.sin(angle * Math.PI / 180) * tempD);
+			store("x", x + dx);
+			store("y", y + dy);
+			// sin(270) = -1; 270 is down. This would be perfect if we were
+			// using Cartesian coordinates, but with CG default (down == higher 
+			// value), have to subtract sin from y instead of adding.
 			break;
 		case "moveto":
-			// TODO test
-			x = evaluate(tree.getChild(0));
-			y = evaluate(tree.getChild(1));
+			store("x", evaluate(tree.getChild(0)));
+			store("y", evaluate(tree.getChild(1)));
 			break;
 		case "turn":
-			// TODO test
-			angle = (angle + evaluate(tree.getChild(0))) % 360.0;
-			if (angle < 0.0) angle += 360.0;
+			double newAngle = (angle + evaluate(tree.getChild(0))) % 360.0;
+			store("angle", newAngle >= 0.0 ? newAngle : newAngle + 360.0);
 			break;
 		case "turnto":
-			// TODO test
-			angle = evaluate(tree.getChild(0)) % 360.0;
-			if (angle < 0.0) angle += 360.0;
+			double newA = evaluate(tree.getChild(0)) % 360.0;
+			store("angle", newA >= 0.0 ? newA : newA + 360.0);
 			break;
 		case "return":
 			// Not this week
@@ -192,36 +283,28 @@ public class Bug {
 			// Not this week
 			break;
 		case "assign":
-			// TODO test
 			String tempS = tree.getChild(0).getValue().value;
-			if (!variables.containsKey(tempS)) 
+			if (!variables.containsKey(tempS) && !"x".equals(tempS) && 
+					!"y".equals(tempS) && !"angle".equals(tempS)) 
 				throw new RuntimeException("No such variable declared!");
 			store(tempS, evaluate(tree.getChild(1)));
 			break;
 		case "loop":
-			// TODO test
 			while (!exitLoop) {
-				Tree<Token> tempT2 = tree.getChild(0);
-				for (int i = 0; i < tempT2.getNumberOfChildren(); i++) {
-					interpret(tempT2.getChild(i));
-				}
+				interpret(tree.getChild(0));
 			}
 			exitLoop = false;
 			break;
 		case "exit":
-			// TODO test
-			exitLoop = true; // shouldn't this be if (evaluate(whichever child))??
+			// an exit-if statement - set exit true if condition true
+			if (Math.abs(evaluate(tree.getChild(0))) > e) exitLoop = true;
 			break;
 		case "switch":
-			// TODO test
-			double b;
 			for (int i = 0; i < tree.getNumberOfChildren(); i++) {
-				b = evaluate(tree.getChild(i));
-				if (b < -0.001 || b > 0.001) break;
+				if (Math.abs(evaluate(tree.getChild(i))) > e) break;
 			}
 			break;
 		case "color":
-			// TODO test
 			String colorName = tree.getChild(0).getValue().value;
 			if (colorName.equals("none")) color = null;
 			else if (colorName.equals("black")) color = Color.BLACK;
@@ -237,10 +320,11 @@ public class Bug {
 			else if (colorName.equals("red")) color = Color.RED;
 			else if (colorName.equals("white")) color = Color.WHITE;
 			else if (colorName.equals("yellow")) color = Color.YELLOW;
+			else if (colorName.equals("brown")) color = new Color(64, 32, 0);
+			else if (colorName.equals("purple")) color = new Color(80, 0, 64);
 			else throw new RuntimeException("Invalid color!");
 			break;
 		case "function":
-			// TODO test
 			functions.put(tree.getChild(0).getValue().value, tree);
 		}
 	}
