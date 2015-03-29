@@ -187,6 +187,7 @@ public class BugsGui extends JFrame {
     		@Override
         	public void actionPerformed(ActionEvent a) {
         		display.repaint();
+        		if (in.bugs.size()==0) timer.stop();
         	}
         });
     }
@@ -196,7 +197,6 @@ public class BugsGui extends JFrame {
 	 * @throws IOException
 	 */
 	private void load() throws IOException {
-		//TODO
 		JFileChooser fc = new JFileChooser();
 		File f;
 		String contents = "";
@@ -240,6 +240,8 @@ public class BugsGui extends JFrame {
     	in = new Interpreter(program);
     	resetSpeed(speed);
     	display = new View(in);
+        add(display, BorderLayout.CENTER);
+        timer.start();
     }
     
     protected void stepAnimation() {
@@ -248,12 +250,12 @@ public class BugsGui extends JFrame {
 //        model.setLimits(view.getWidth(), view.getHeight());
 //        model.makeOneStep();
 //        paint(g);
+    	in.step();
     	stepButton.setEnabled(true);
         runButton.setEnabled(true);
         pauseButton.setEnabled(false);
         resetButton.setEnabled(true);
         
-    	in.step();
     }
     
     protected void runAnimation() {
@@ -264,7 +266,7 @@ public class BugsGui extends JFrame {
         resetButton.setEnabled(true);
         
     	in.running = true;
-    	in.run();
+    	in.start();
     }
     
     protected void pauseAnimation() {
@@ -288,7 +290,6 @@ public class BugsGui extends JFrame {
     	in.running = false;
     	in.quit();
     	newAnimation();
-//    	in = new Interpreter(program);
 //        paint(g);
     }
 

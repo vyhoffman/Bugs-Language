@@ -54,18 +54,31 @@ public class Bug extends Thread {
 	}
 	
 	@Override
-	public void run() {
+	public void run() throws RuntimeException{
 		//loop through program
 		int i = 0;
+		if (mainProgram == null) {
+			System.out.println("Bug " + name + " has no main program somehow\n");
+			interp.killBug(this);
+		}
+		Tree<Token> t;
 		while (i < mainProgram.getNumberOfChildren()) {
 			//get permission
 			interp.getActionPermit(this);
 			while (!blocked && i < mainProgram.getNumberOfChildren()) {
-				interpret(mainProgram.getChild(i));
+				t = mainProgram.getChild(i);
+				if ("call".equals(t.getValue().value)) {
+					System.out.println("Evaluating " + t.getValue().value + " on " + name);
+					try { evaluate(t); } catch (RuntimeException e) { throw e; }
+				} else {
+					System.out.println("Interpreting " + t.getValue().value +" on " + name);
+					try { interpret(t); } catch (RuntimeException e) { throw e; }
+				}
 				i++;
 			}
 			//interp.completeAction(this); //no, do this at the end of interpreting
 		}
+		System.out.println("Killing bug " + name);
 		interp.killBug(this);
 		//indicate done TODO
 	}
@@ -263,7 +276,7 @@ public class Bug extends Thread {
 	 * @param <code>tree</code> to evaluate
 	 * @return double result of evaluation
 	 */
-	public double evaluate(Tree<Token> tree) {
+	public double evaluate(Tree<Token> tree) throws RuntimeException {
 		switch(tree.getValue().value) {
 		case "+":
 			if (tree.getNumberOfChildren() == 1) {
@@ -311,31 +324,42 @@ public class Bug extends Thread {
 			return result;
 		case "call":
 			returnVal = 0.0;
-			HashMap<String, Double> locals = new HashMap<String, Double>();
-			scopes.push(locals);
-			//get the values
-			Tree<Token> t = tree.getChild(1); //var node
-			Double[] varvalues = new Double[t.getNumberOfChildren()];
-			for (int i = 0; i < t.getNumberOfChildren(); i++) {
-				varvalues[i] = evaluate(t.getChild(i));
-			}
-			//have to find the function to get the names
 			String fn = tree.getChild(0).getValue().value; // fn name
+			System.out.println(fn + " was called\n");
 			if ("distance".equals(fn)) {
 				return distance(tree.getChild(1).getValue().value);
 			}
 			else if ("direction".equals(fn)) {
 				return direction(tree.getChild(1).getValue().value);
 			}
-			else if (functions.containsKey(fn)) t = functions.get(fn);
+			
+			HashMap<String, Double> locals = new HashMap<String, Double>();
+			scopes.push(locals);
+			//get the values
+			Tree<Token> t = tree.getChild(1); //var node
+			Double[] varvalues = new Double[t.getNumberOfChildren()];
+			System.out.println(varvalues.length);
+			for (int i = 0; i < t.getNumberOfChildren(); i++) {
+				varvalues[i] = evaluate(t.getChild(i));
+				System.out.println("varvalues["+i+"] = "+varvalues[i]);
+			}
+			//have to find the function to get the names
+			if (functions.containsKey(fn)) t = functions.get(fn);
 			else if (interp.functions.containsKey(fn)) t = interp.functions.get(fn);
+			else throw new RuntimeException("undeclared function?\n");
+			Tree<Token> param = t.getChild(1);
 			//TODO throw exception if not found?
 			//then have to put everything in locals
-			for (int i = 0; i < t.getNumberOfChildren(); i++) {
-				locals.put(t.getChild(i).getValue().value, varvalues[i]);
+			for (int i = 0; i < param.getNumberOfChildren(); i++) {
+				System.out.println("i = " + i + " ; param.length = " + param.getNumberOfChildren());
+				System.out.println(param.getChild(i).getValue().value);
+				locals.put(param.getChild(i).getValue().value, varvalues[i]);
 			}
-			interpret(tree.getChild(2));
+			System.out.println("Calling " + fn + " on " + name);
+			interpret(t.getChild(2));
 			// TODO check
+			System.out.println("returnVal = " + returnVal);
+			scopes.pop();
 			return returnVal;
 		default:
 			// if it's a leaf/just a number
@@ -383,6 +407,7 @@ public class Bug extends Thread {
 //			break;
 		case "Bug":
 			// Save the name of the Bug in an instance variable.
+			System.out.println("case Bug\n");
 			name = tree.getChild(0).getValue().value; // ???
 			interpret(tree.getChild(1)); // Interpret the list of var declarations.
 			interpret(tree.getChild(2)); // Interpret the initialization block.
@@ -393,12 +418,14 @@ public class Bug extends Thread {
 		case "list":
 			for (int i = 0; i < tree.getNumberOfChildren(); i++) {
 				if (exitLoop) break;
+				if (blocked) interp.getActionPermit(this);
 				interpret(tree.getChild(i));
 			}
 			break;
 		case "block":
 			for (int i = 0; i < tree.getNumberOfChildren(); i++) {
 				if (exitLoop) break;
+				if (blocked) interp.getActionPermit(this);
 				interpret(tree.getChild(i));
 			}
 			break;
@@ -451,7 +478,6 @@ public class Bug extends Thread {
 		case "return":
 			// TODO check
 			returnVal = evaluate(tree.getChild(0));
-			scopes.pop();
 			break;
 		case "line":
 			// TODO
@@ -470,6 +496,7 @@ public class Bug extends Thread {
 			break;
 		case "loop":
 			while (!exitLoop) {
+				if (blocked) interp.getActionPermit(this);
 				interpret(tree.getChild(0));
 			}
 			exitLoop = false;

@@ -11,7 +11,10 @@ public class View extends JPanel {
 	View() { super(); }
 	
 	View (Interpreter in) {
+		super();
 		this.in = in;
+		this.setSize(500,500);
+		this.setVisible(true);
 	}
 	
 	@Override

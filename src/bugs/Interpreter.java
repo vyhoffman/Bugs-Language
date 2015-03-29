@@ -1,17 +1,12 @@
 package bugs;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Observable;
-import java.util.Stack;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-
 import tree.Tree;
 
 /**
  * @author Nicki Hoffman
+ * @author Dave Matuszek
  *
  */
 public class Interpreter extends Thread {
@@ -35,7 +30,6 @@ public class Interpreter extends Thread {
 	
 	Interpreter(Tree<Token> t) {
 		this(); // I mean given the above I might as well
-		//TODO other stuff
 		interpret(t);
 	}
 	
@@ -50,12 +44,10 @@ public class Interpreter extends Thread {
 	public void interpret(Tree<Token> tree) throws RuntimeException {
 		switch (tree.getValue().value) {
 		case "program":
-			// TODO check
 			interpret(tree.getChild(0));
 			interpret(tree.getChild(1));
 			break;
 		case "Allbugs":
-			// TODO check
 			Tree<Token> t = tree.getChild(0); // var declaration list
 			for (int i = 0; i < t.getNumberOfChildren(); i++) {
 				variables.put(t.getChild(i).getValue().value, 0.0);
@@ -65,9 +57,14 @@ public class Interpreter extends Thread {
 				Tree<Token> fn = t.getChild(i);
 				functions.put(fn.getChild(0).getValue().value, fn);
 			}
+			break;
+		case "list":
+			for (int i = 0; i < tree.getNumberOfChildren(); i++) 
+				interpret(tree.getChild(i));
+			break;
 		case "Bug":
 			bugs.put(tree.getChild(0).getValue().value, new Bug(tree, this));
-		} //TODO check
+		}
 	}
 	
 	/** Calls the start() method of each live bug. */
@@ -77,12 +74,15 @@ public class Interpreter extends Thread {
 		}
 	}
 	
+	@Override
 	public void run() {
+		if (bugs.size() == 0) return;
 		if (!started) { started = true; startBugs(); }
 		while (bugs.size() > 0 && running) {
 			//TODO
 			try { sleep(delay); } catch (InterruptedException e) { }
 			unblockAllBugs();
+			System.out.println(bugs.size() + " bugs remain");
 		}
 	}
 	
@@ -90,12 +90,13 @@ public class Interpreter extends Thread {
 		delay = d;
 	}
 	
-	void step() {
+	public void step() {
+		if (bugs.size() == 0) return;
+		if (!started) { started = true; startBugs(); }
 		unblockAllBugs();
 	}
 	
 	synchronized void getActionPermit(Bug b) {
-		//TODO
 		while (b.blocked) {
 			try {
 				wait();
@@ -125,10 +126,12 @@ public class Interpreter extends Thread {
 	}
 	
 	synchronized void killBug(Bug b) {
-		bugs.remove(b);
+		bugs.remove(b.name);
+		notifyAll();
 	}
 	
-	void quit() {
+	synchronized void quit() {
 		for (String bug : bugs.keySet()) killBug(bugs.get(bug));
+		notifyAll();
 	}
 }
