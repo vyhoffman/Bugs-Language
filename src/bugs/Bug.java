@@ -20,6 +20,7 @@ public class Bug extends Thread {
 	double x, y, angle;
 	boolean exitLoop;
 	double returnVal;
+	boolean returned;
 	static double e = 0.001;
 	Stack<HashMap<String, Double>> scopes = new Stack<HashMap<String, Double>>();
 	Interpreter interp;
@@ -41,6 +42,7 @@ public class Bug extends Thread {
 		this.interp = new Interpreter();
 		blocked = false;
 		initially = false;
+		returned = false;
 	}
 	
 	/**Bug constructor that takes a Bug definition to interpret and a reference
@@ -392,6 +394,7 @@ public class Bug extends Thread {
 			interpret(t.getChild(2));
 //			System.out.println("returnVal = " + returnVal);
 			scopes.pop();
+			returned = false;
 			return returnVal;
 		default:
 			// if it's a leaf/just a number
@@ -462,7 +465,7 @@ public class Bug extends Thread {
 			break;
 		case "block":
 			for (int i = 0; i < tree.getNumberOfChildren(); i++) {
-				if (exitLoop) break;
+				if (exitLoop || returned) break;
 				if (blocked) interp.getActionPermit(this);
 				interpret(tree.getChild(i));
 			}
@@ -515,7 +518,12 @@ public class Bug extends Thread {
 			if (!initially) interp.completeAction(this);
 			break;
 		case "return":
+			if (scopes.size() <= 1) {
+				interp.killBug(this);
+				throw new RuntimeException("Can't call return if not in a function\n");
+			}
 			returnVal = evaluate(tree.getChild(0));
+			returned = true;
 			break;
 		case "line":
 			double x1 = evaluate(tree.getChild(0));

@@ -1,0 +1,8 @@
+//tests illegal return
+
+Bug ffloyd {
+
+color green
+return 1
+
+}

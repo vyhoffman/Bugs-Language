@@ -36,7 +36,7 @@ public class View extends JPanel {
 			g.setColor(Color.WHITE);
 			g.fillRect(0, 0, getWidth(), getHeight());
 			
-			for (Command c : in.lines) paint(g, c);
+			for (Object c : in.lines.toArray()) paint(g, (Command) c);
 			for (String b : in.bugs.keySet()) paint(g, in.bugs.get(b));			
 		}
 
