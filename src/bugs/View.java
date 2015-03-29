@@ -4,12 +4,22 @@ import java.awt.Color;
 import java.awt.Graphics;
 import javax.swing.JPanel;
 
+/**View for Bugs program; represents/handles all drawing.
+ * @author Nicki Hoffman
+ * @author Dave Matuszek
+ */
 public class View extends JPanel {
 	static final long serialVersionUID = 1L;
 	Interpreter in;
 	
+	/**Default constructor
+	 * 
+	 */
 	View() { super(); }
 	
+	/**Constructor that takes an Interpreter as a source of objects to draw
+	 * @param in Interpreter (the model)
+	 */
 	View (Interpreter in) {
 		super();
 		this.in = in;
@@ -17,6 +27,9 @@ public class View extends JPanel {
 		this.setVisible(true);
 	}
 	
+	/* (non-Javadoc)
+	 * @see javax.swing.JComponent#paint(java.awt.Graphics)
+	 */
 	@Override
 	public void paint(Graphics g) {
 		if (in != null) {
@@ -29,6 +42,10 @@ public class View extends JPanel {
 
 	}
 	
+	/**Paints one line represented by a Command object.
+	 * @param g Where to draw the line
+	 * @param c Command to draw
+	 */
 	public void paint(Graphics g, Command c) {
 		if (c.color == null) return;
 		g.setColor(c.color);
@@ -40,9 +57,9 @@ public class View extends JPanel {
 	}
 	
 	/**
-	 * Paints a triangle to represent this Bug.
+	 * Paints a triangle to represent the Bug b.
 	 * 
-	 * @param g Where to paint this Bug.
+	 * @param g Where to paint the Bug.
 	 */
 	public void paint(Graphics g, Bug b) {
 	    if (b.color == null) return;
@@ -58,10 +75,18 @@ public class View extends JPanel {
 	    g.fillPolygon(new int[] { x1, x2, x3 }, new int[] { y1, y2, y3 }, 3);
 	}
 	
+	/**Scales x value to the current size of this View
+	 * @param x unscaled x
+	 * @return scaled x
+	 */
 	double scaleX(double x) {
 		return x * this.getWidth() / 100.0;
 	}
 	
+	/**Scales y value to the current size of this View
+	 * @param y unscaled y
+	 * @return scaled y
+	 */
 	double scaleY(double y){
 		return y * this.getHeight() / 100.0;
 	}
@@ -94,6 +119,10 @@ public class View extends JPanel {
 	    return distance * Math.sin(-radians);
 	}
 	
+	/* (non-Javadoc) added this while figuring out how to do the timer
+	 * not sure it's necessary but doesn't seem to hurt.
+	 * @see javax.swing.JComponent#update(java.awt.Graphics)
+	 */
 	@Override
 	public void update(Graphics g) {
 		// TODO Auto-generated method stub

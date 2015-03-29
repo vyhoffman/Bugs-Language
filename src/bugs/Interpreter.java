@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import tree.Tree;
 
-/**
+/**Bugs interpreter class.
  * @author Nicki Hoffman
  * @author Dave Matuszek
  *
@@ -19,6 +19,9 @@ public class Interpreter extends Thread {
 	ArrayList<Command> lines;
 	int delay;
 	
+	/**Default Interpreter constructor.
+	 * 
+	 */
 	Interpreter() {
 		functions = new HashMap<String, Tree<Token>>();
 		variables = new HashMap<String, Double>();
@@ -28,6 +31,9 @@ public class Interpreter extends Thread {
 		running = false;
 	} //hack to allow bugtest to keep working
 	
+	/**Interpreter constructor that takes an AST to interpret.
+	 * @param t tree to interpret
+	 */
 	Interpreter(Tree<Token> t) {
 		this(); // I mean given the above I might as well
 		interpret(t);
@@ -41,6 +47,10 @@ public class Interpreter extends Thread {
 //		//other stuff
 //	}
 	
+	/**Tries to interpret the tree passed in.
+	 * @param tree to interpret
+	 * @throws RuntimeException if an error is encountered?
+	 */
 	public void interpret(Tree<Token> tree) throws RuntimeException {
 		switch (tree.getValue().value) {
 		case "program":
@@ -80,6 +90,9 @@ public class Interpreter extends Thread {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Thread#run()
+	 */
 	@Override
 	public void run() {
 		if (bugs.size() == 0) return;
@@ -93,16 +106,26 @@ public class Interpreter extends Thread {
 		}
 	}
 	
+	/**Sets the Interpreter's delay (how long to wait before handing out a
+	 * round of action permits)
+	 * @param d delay to set
+	 */
 	public void setDelay(int d) {
 		delay = d;
 	}
 	
+	/**Hands out one round of action permits, allowing each Bug to take one
+	 * action.
+	 */
 	public void step() {
 		if (bugs.size() == 0) return;
 		if (!started) { started = true; startBugs(); }
 		unblockAllBugs();
 	}
 	
+	/**Delays Bug b while it waits for an action permit.
+	 * @param b Bug waiting for an action permit
+	 */
 	synchronized void getActionPermit(Bug b) {
 		while (b.blocked) {
 			try {
@@ -111,11 +134,18 @@ public class Interpreter extends Thread {
 		}
 	}
 	
+	/**Resets Bug b to blocked after being called/notified that it has
+	 * performed an action.
+	 * @param b Bug that needs to be blocked.
+	 */
 	synchronized void completeAction(Bug b) {
 		b.blocked = true;
 		notifyAll();
 	}
 	
+	/**Waits for all Bugs to be blocked, then hands out a round of work permits.
+	 * 
+	 */
 	synchronized void unblockAllBugs() {
 		while (countBlockedBugs() < bugs.size()) {
 			try { wait(); } catch (InterruptedException e) { }
@@ -126,17 +156,26 @@ public class Interpreter extends Thread {
 		notifyAll();
 	}
 	
+	/**Counts the number of live Bugs that are currently blocked.
+	 * @return Count of Bugs blocked
+	 */
 	private int countBlockedBugs() {
 		int count = 0;
 		for (String name : bugs.keySet()) if (bugs.get(name).blocked) count++;
 		return count;
 	}
 	
+	/**When called by Bug b, removes b from the hashMap of live Bugs.
+	 * @param b Bug to remove
+	 */
 	synchronized void killBug(Bug b) {
 		bugs.remove(b.name);
 		notifyAll();
 	}
 	
+	/**Kills all Bugs, clears the set of lines to draw, and stops running.
+	 * 
+	 */
 	synchronized void quit() {
 		while (countBlockedBugs() < bugs.size()) {
 			try { wait(); } catch (InterruptedException e) { }

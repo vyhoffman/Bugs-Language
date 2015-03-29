@@ -45,6 +45,7 @@ public class BugsGui extends JFrame {
     Tree<Token> program;
     Interpreter in = new Interpreter();
     Timer timer;
+    JFrame gui;
     
     /**
      * GUI constructor.
@@ -60,6 +61,7 @@ public class BugsGui extends JFrame {
         setVisible(true);
         //handleResizing();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        gui = this;
     }
     
     // referred to my Kaleidoscope project for this, but apparently don't need it
@@ -76,9 +78,9 @@ public class BugsGui extends JFrame {
     private void createAndInstallMenus() {
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");        
-        JMenu helpMenu = new JMenu("Help");
+        //JMenu helpMenu = new JMenu("Help");
         JMenuItem quitMenuItem = new JMenuItem("Quit");
-        JMenuItem helpMenuItem = new JMenuItem("Help");
+        //JMenuItem helpMenuItem = new JMenuItem("Help");
         JMenuItem loadMenuItem = new JMenuItem("Load...");
         
         menuBar.add(fileMenu);
@@ -88,7 +90,7 @@ public class BugsGui extends JFrame {
         	public void actionPerformed(ActionEvent arg0) {
         		try { load(); }
         		catch (IOException e) { 
-        			JOptionPane.showMessageDialog(display, "Failed to load file");
+        			JOptionPane.showMessageDialog(gui, "Failed to load file");
         		}
         	}});
         fileMenu.add(quitMenuItem);
@@ -242,7 +244,7 @@ public class BugsGui extends JFrame {
 				program = p.stack.pop();
 				newAnimation();				
 			} else {
-				JOptionPane.showMessageDialog(display, "Invalid program");
+				JOptionPane.showMessageDialog(gui, "Invalid program");
 			}
 
 		}
@@ -319,7 +321,7 @@ public class BugsGui extends JFrame {
 //        pauseButton.setEnabled(false);
 //        resetButton.setEnabled(false);
 
-    	in.quit();
+    	if (in != null) in.quit();
     	newAnimation();
 //        paint(g);
     }

@@ -20,7 +20,6 @@ public class RecognizerTest1 {
     
     /**
      * Constructor for RecognizerTest.
-     * @param arg0
      */
     public RecognizerTest1() {
         r0 = new Recognizer("2 + 2");

@@ -55,6 +55,9 @@ public class Bug extends Thread {
 		interpret(b);
 	}
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Thread#run()
+	 */
 	@Override
 	public void run() throws RuntimeException{
 		//loop through program
@@ -171,6 +174,12 @@ public class Bug extends Thread {
 	//-----------End of helper/testing methods
 	//-----------Primary functions below
 	
+	/**Returns true if the variable is one of: a Bug instance variable, a 
+	 * variable defined by the Bug or one of its functions, or a variable
+	 * defined in Allbugs.
+	 * @param var to look for
+	 * @return true if var is found
+	 */
 	boolean findVariable(String var) {
 		if ("x".equals(var) || "y".equals(var) || "angle".equals(var)) 
 												return true;
@@ -226,21 +235,37 @@ public class Bug extends Thread {
 			if (interp.variables.containsKey(variable)) 
 							return interp.variables.get(variable);					
 		}
+		interp.killBug(this);
 		throw new RuntimeException("Undeclared variable!");
 	}
 	
+	/**Tries to fetch the variable v from the Bug bug.
+	 * @param bug to which the variable belongs
+	 * @param v variable to fetch
+	 * @return value of bug.v
+	 */
 	double fetchFrom(String bug, String v) {
-		if (!interp.bugs.containsKey(bug)) 
-			throw new RuntimeException("That Bug is not alive\n");
+		if (!interp.bugs.containsKey(bug)) {
+			interp.killBug(this);
+			throw new RuntimeException(bug + " is not alive\n");
+		}
 		else if ("x".equals(v) || "y".equals(v) || "angle".equals(v)) {
 			return interp.bugs.get(bug).fetch(v);
 		}
 		else if (declaredBy(bug, v)) {
 			return interp.bugs.get(bug).scopes.get(0).get(v);
 		}
-		else throw new RuntimeException("Access to that variable denied\n");
+		else {
+			interp.killBug(this);
+			throw new RuntimeException("Access to that variable denied\n");
+		}
 	}
 	
+	/**Returns true if Bug b has a variable v in its lowest scope.
+	 * @param b the Bug at whose variables to look
+	 * @param v the variable to look for
+	 * @return true if found, else false
+	 */
 	boolean declaredBy(String b, String v) {
 		return interp.bugs.get(b).scopes.get(0).containsKey(v);
 	}
@@ -274,7 +299,7 @@ public class Bug extends Thread {
 	}
 	
 	/**Evaluates the expression, switch case, or function call specified.
-	 * @param <code>tree</code> to evaluate
+	 * @param tree to evaluate
 	 * @return double result of evaluation
 	 */
 	public double evaluate(Tree<Token> tree) throws RuntimeException {
@@ -328,10 +353,10 @@ public class Bug extends Thread {
 			String fn = tree.getChild(0).getValue().value; // fn name
 //			System.out.println(fn + " was called");
 			if ("distance".equals(fn)) {
-				return distance(tree.getChild(1).getValue().value);
+				return distance(tree.getChild(1).getChild(0).getValue().value);
 			}
 			else if ("direction".equals(fn)) {
-				return direction(tree.getChild(1).getValue().value);
+				return direction(tree.getChild(1).getChild(0).getValue().value);
 			}
 			
 			HashMap<String, Double> locals = new HashMap<String, Double>();
@@ -347,7 +372,10 @@ public class Bug extends Thread {
 			//have to find the function to get the names
 			if (functions.containsKey(fn)) t = functions.get(fn);
 			else if (interp.functions.containsKey(fn)) t = interp.functions.get(fn);
-			else throw new RuntimeException("undeclared function?\n");
+			else {
+				interp.killBug(this);
+				throw new RuntimeException("undeclared function?\n");
+			}
 			Tree<Token> param = t.getChild(1);
 			//then have to put everything in locals
 			for (int i = 0; i < param.getNumberOfChildren(); i++) {
@@ -355,6 +383,7 @@ public class Bug extends Thread {
 				//System.out.println(param.getChild(i).getValue().value);
 				String v = param.getChild(i).getValue().value;
 				if ("x".equals(v) || "y".equals(v) || "angle".equals(v)) {
+					interp.killBug(this);
 					throw new RuntimeException("Cannot declare x, y, or angle as local var\n");
 				}
 				locals.put(v, varvalues[i]);
@@ -384,7 +413,7 @@ public class Bug extends Thread {
 	}
 	
 	/**Interprets the tree specified.
-	 * @param <code>tree</code> to interpret
+	 * @param tree to interpret
 	 * @throws <code>RuntimeException</code> if a color statement tries
 	 * to assign an invalid color or an assignment statement tries to
 	 * assign to an undeclared variable.
@@ -498,8 +527,10 @@ public class Bug extends Thread {
 			break;
 		case "assign":
 			String tempS = tree.getChild(0).getValue().value;
-			if (!findVariable(tempS)) 
+			if (!findVariable(tempS)) {
+				interp.killBug(this);
 				throw new RuntimeException("No such variable declared!");
+			}
 			store(tempS, evaluate(tree.getChild(1)));
 			break;
 		case "loop":
@@ -536,7 +567,10 @@ public class Bug extends Thread {
 			else if (colorName.equals("yellow")) color = Color.YELLOW;
 			else if (colorName.equals("brown")) color = new Color(64, 32, 0);
 			else if (colorName.equals("purple")) color = new Color(150,50,150);
-			else throw new RuntimeException("Invalid color!");
+			else {
+				interp.killBug(this);
+				throw new RuntimeException("Invalid color!");
+			}
 			break;
 		case "function":
 			functions.put(tree.getChild(0).getValue().value, tree);

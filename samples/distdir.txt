@@ -1,0 +1,37 @@
+//still need to test distance(), direction(), and accessing another bug's var
+
+Bug ffloyd {
+initially {
+color yellow
+moveto 20, 0
+}
+
+switch {
+    case direction(fred) = 180
+        color green
+        turnto 270
+        move 20
+}
+
+turnto angle
+turnto angle
+turnto angle
+turnto angle
+
+}
+
+
+Bug fred {
+
+switch {
+    case distance(ffloyd) = 20
+        color black
+        moveto 80, 20
+}
+
+angle = ffloyd.angle
+angle = direction(ffloyd)
+turnto angle
+turnto angle
+
+}
