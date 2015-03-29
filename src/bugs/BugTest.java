@@ -7,6 +7,8 @@ import java.awt.Color;
 import org.junit.Before;
 import org.junit.Test;
 
+import tree.Tree;
+
 /**Tests the Bug interpreter class.
  * @author Nicki Hoffman
  *
@@ -24,9 +26,9 @@ public class BugTest {
 	
 	@Test
 	public void testGetAndSetName() {
-		assertEquals("Floyd", b.getName());
-		b.setName("Imogen");
-		assertEquals("Imogen", b.getName());
+		assertEquals("Floyd", b.getBugName());
+		b.setBugName("Imogen");
+		assertEquals("Imogen", b.getBugName());
 	}
 	
 	@Test
@@ -66,6 +68,47 @@ public class BugTest {
 	
 	//-------------End of my helper method tests
 	//-------------Primary method tests below
+	
+	@Test
+	public void testDirection() {
+		Bug c = new Bug("Mary");
+		Interpreter i = new Interpreter();
+		i.bugs.put("Mary", c);
+		b.interp = i;
+		c.setX(2.0);	// 0 degrees
+		assertEquals(0.0, b.direction(c.name), Bug.e);
+		c.setY(-2.0);	// 45 degrees
+		assertEquals(45.0, b.direction(c.name), Bug.e);
+		c.setX(0.0);	// 90 degrees
+		assertEquals(90.0, b.direction(c.name), Bug.e);
+		c.setX(-2.0);	// 135 degrees
+		assertEquals(135.0, b.direction(c.name), Bug.e);
+		c.setY(0.0);	// 180 degrees
+		assertEquals(180.0, b.direction(c.name), Bug.e);
+		c.setY(2.0);	// 225 degrees
+		assertEquals(225.0, b.direction(c.name), Bug.e);
+		c.setX(0.0);	// 270 degrees
+		assertEquals(270.0, b.direction(c.name), Bug.e);
+		c.setX(2.0);	// 315 degrees
+		assertEquals(315.0, b.direction(c.name), Bug.e);
+	}
+	
+	@Test
+	public void testDistance() {
+		Bug c = new Bug("Mary");
+		Interpreter i = new Interpreter();
+		i.bugs.put("Mary", c);
+		b.interp = i;
+		c.setX(8.0);
+		assertEquals(8.0, b.distance(c.name), Bug.e);
+		c.setX(-4.0);
+		assertEquals(4.0, b.distance(c.name), Bug.e);
+		c.setX(0.0);
+		c.setY(-3.0);
+		assertEquals(3.0, b.distance(c.name), Bug.e);
+		c.setY(12.0);
+		assertEquals(12.0, b.distance(c.name), Bug.e);
+	}
 
 	/**
 	 * Test method for store and fetch methods
@@ -332,13 +375,17 @@ public class BugTest {
 	 */
 	@Test
 	public void testBug() {
+		//changed tests for interpreter part 2 since completed interpret() for
+		//bug def'n case
 		p = new Parser("Bug Eratosthenes {\n turn 42 \n }\n");
 		p.isBugDefinition();
+		Tree<Token> prog = p.stack.peek().getChild(3); //block of cmds that==bug's program
 		b.interpret(p.stack.pop());
-		assertEquals("Eratosthenes", b.getName());
+		b.mainProgram.equals(prog);
+		assertEquals("Eratosthenes", b.getBugName());
 		assertEquals(0.0, b.getX(), Bug.e);
 		assertEquals(0.0, b.getY(), Bug.e);
-		assertEquals(42.0, b.getAngle(), Bug.e);
+		assertEquals(0.0, b.getAngle(), Bug.e);
 		assertEquals(Color.BLACK, b.getColor());
 		assertEquals(0, b.variables.size());
 		assertEquals(0, b.functions.size());
@@ -346,30 +393,34 @@ public class BugTest {
 		p = new Parser("Bug Aristophanes {\n var myvar1 \n "+
 				"initially {\n}\n turn 42 \n moveto 41, 42 \n define fn1 {\n}\n }\n");
 		p.isBugDefinition();
+		prog = p.stack.peek().getChild(3);
 		b.interpret(p.stack.pop());
-		assertEquals("Aristophanes", b.getName());
-		assertEquals(41.0, b.getX(), Bug.e);
-		assertEquals(42.0, b.getY(), Bug.e);
-		assertEquals(84.0, b.getAngle(), Bug.e);
+		b.mainProgram.equals(prog);
+		assertEquals("Aristophanes", b.getBugName());
+		assertEquals(0.0, b.getX(), Bug.e);
+		assertEquals(0.0, b.getY(), Bug.e);
+		assertEquals(0.0, b.getAngle(), Bug.e);
 		assertEquals(Color.BLACK, b.getColor());
 		assertEquals(1, b.variables.size());
 		assertTrue(b.variables.containsKey("myvar1"));
-		assertEquals(0, b.functions.size());
+		assertEquals(1, b.functions.size());
 		
 		p = new Parser("Bug Thales {\n var myvar1 \n var myvar2 "+
 				"\n initially {\n turnto 0 \n }\n turn 42 \n moveto 42, 43 \n "+
 				"color darkGray \n exit if 1 \n color purple \n"+
 				"define fn1 {\n}\n define fn2 {\n}\n }\n");
 		p.isBugDefinition();
+		prog = p.stack.peek().getChild(3);
 		b.interpret(p.stack.pop());
-		assertEquals("Thales", b.getName());
-		assertEquals(42.0, b.getX(), Bug.e);
-		assertEquals(43.0, b.getY(), Bug.e);
-		assertEquals(42.0, b.getAngle(), Bug.e);
-		assertEquals(Color.DARK_GRAY, b.getColor());
+		b.mainProgram.equals(prog);
+		assertEquals("Thales", b.getBugName());
+		assertEquals(0.0, b.getX(), Bug.e);
+		assertEquals(0.0, b.getY(), Bug.e);
+		assertEquals(0.0, b.getAngle(), Bug.e);
+		assertEquals(Color.BLACK, b.getColor());
 		assertEquals(2, b.variables.size());
 		assertTrue(b.variables.containsKey("myvar2"));
-		assertEquals(0, b.functions.size());
+		assertEquals(2, b.functions.size());
 	}
 	
 //	/**
