@@ -3,6 +3,8 @@ package bugs;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -56,7 +58,20 @@ public class BugsGui extends JFrame {
         createControlPanel();
         initializeButtons();
         setVisible(true);
+        //handleResizing();
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
+    
+    // referred to my Kaleidoscope project for this, but apparently don't need it
+//    private void handleResizing() {
+//    	this.addComponentListener(new ComponentAdapter() {
+//    		@Override
+//    		public void componentResized(ComponentEvent arg0) {
+//    	        //display.setSize(getWidth()-2, getHeight()-100);
+//    			display.repaint();
+//    		}
+//    	});
+//    }
 
     private void createAndInstallMenus() {
         JMenuBar menuBar = new JMenuBar();
@@ -83,19 +98,26 @@ public class BugsGui extends JFrame {
                 quit();
             }});
         
-        menuBar.add(helpMenu);
-        helpMenu.add(helpMenuItem);
-        helpMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                help();
-            }});
+//        menuBar.add(helpMenu);
+//        helpMenu.add(helpMenuItem);
+//        helpMenuItem.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent arg0) {
+//                help();
+//            }});
         
         this.setJMenuBar(menuBar);
     }
 
     private void createDisplayPanel() {
         display = new View(); // update this when an interpreter is created
+        display.setSize(getWidth()-2, getHeight()-100);
+        add(display, BorderLayout.CENTER);
+    }
+    
+    private void createDisplayPanel(Interpreter in) {
+        display = new View(in);
+        display.setSize(getWidth()-2, getHeight()-100);
         add(display, BorderLayout.CENTER);
     }
 
@@ -212,11 +234,17 @@ public class BugsGui extends JFrame {
 				}
 				reader.close();
 			}
-			System.out.println(contents);
+//			System.out.println("Got contents");
 			Parser p = new Parser(contents);
-			p.isProgram();
-			program = p.stack.pop();
-			newAnimation();
+//			System.out.println("Parsed contents");
+			if (p.isProgram()) {
+//				System.out.println("Is program");
+				program = p.stack.pop();
+				newAnimation();				
+			} else {
+				JOptionPane.showMessageDialog(display, "Invalid program");
+			}
+
 		}
 	}
 
@@ -239,9 +267,13 @@ public class BugsGui extends JFrame {
         
     	in = new Interpreter(program);
     	resetSpeed(speed);
-    	display = new View(in);
-        add(display, BorderLayout.CENTER);
+    	remove(display);
+    	createDisplayPanel(in);
+//    	display = new View(in);
+//        display.setSize(getWidth()-2, getHeight()-100);
+//        add(display, BorderLayout.CENTER);
         timer.start();
+    	in.start();
     }
     
     protected void stepAnimation() {
@@ -266,7 +298,7 @@ public class BugsGui extends JFrame {
         resetButton.setEnabled(true);
         
     	in.running = true;
-    	in.start();
+    	
     }
     
     protected void pauseAnimation() {
@@ -287,15 +319,14 @@ public class BugsGui extends JFrame {
 //        pauseButton.setEnabled(false);
 //        resetButton.setEnabled(false);
 
-    	in.running = false;
     	in.quit();
     	newAnimation();
 //        paint(g);
     }
 
-    protected void help() {
-        // TODO Auto-generated method stub
-    }
+//    protected void help() {
+//        // Auto-generated method stub
+//    }
 
     protected void quit() {
     	if (in != null) in.quit();

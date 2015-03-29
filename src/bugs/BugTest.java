@@ -20,6 +20,7 @@ public class BugTest {
 	@Before
 	public void setUp() throws Exception {
 		b = new Bug("Floyd");	// :)
+		b.initially = true;
 	}
 	
 	//------------Tests for my helper methods
@@ -439,6 +440,7 @@ public class BugTest {
 		p = new Parser("{\n }\n");
 		p.isBlock();
 		b.interpret(p.stack.pop());
+//		System.out.println("Interpreted the empty block");
 		assertEquals(0.0, b.getX(), Bug.e);
 		assertEquals(0.0, b.getY(), Bug.e);
 		assertEquals(0.0, b.getAngle(), Bug.e);
@@ -449,18 +451,21 @@ public class BugTest {
 		p = new Parser("{\n moveto 10, -10 \n }\n");
 		p.isBlock();
 		b.interpret(p.stack.pop());
+//		System.out.println("Interpreted the one-move-cmd block");
 		assertEquals(10.0, b.getX(), Bug.e);
 		assertEquals(-10.0, b.getY(), Bug.e);
 		
 		p = new Parser("{\n turnto -10 \n color orange \n }\n");
 		p.isBlock();
 		b.interpret(p.stack.pop());
+//		System.out.println("Interpreted the turnto plus color block");
 		assertEquals(350.0, b.getAngle(), Bug.e);
 		assertEquals(Color.ORANGE, b.getColor());
 		
 		p = new Parser("{\n exit if 1 \n color blue \n }\n");
 		p.isBlock();
 		b.interpret(p.stack.pop());
+		//System.out.println("Interpreted the exit block");
 		assertEquals(Color.ORANGE, b.getColor());
 	}
 	
@@ -806,7 +811,7 @@ public class BugTest {
 		p = new Parser("color purple \n");
 		p.isColorStatement();
 		b.interpret(p.stack.pop());
-		assertEquals(new Color(80, 0, 64), b.getColor());
+		assertEquals(new Color(150, 50, 150), b.getColor());
 	}
 	
 	/**

@@ -1,0 +1,58 @@
+//tests fn def with param, uses local and global, also a comment, return
+Allbugs { 
+var one, two
+define settosixty {
+return 60
+}
+
+}
+
+Bug ffloyd {
+
+var amount
+
+initially {
+color none
+moveto 50, 50
+turnto 90
+}
+color green
+line 10, 10, 90, 10
+amount = settosixty()
+do fun(amount)
+move fun(amount)
+moveto amount, amount
+do morefun
+
+define fun using amount {
+one = 5
+two = 45
+amount = 30
+color purple
+
+loop {
+move amount
+turn two
+amount = amount - one
+exit if amount < 10
+}
+return amount
+
+}
+
+define morefun {
+    one = 5
+    two = 60
+    amount = 40
+    color green
+    
+    loop {
+move amount
+turn two
+amount = amount - one
+exit if amount < 10
+}
+return amount
+}
+
+}

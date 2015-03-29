@@ -50,12 +50,18 @@ public class Interpreter extends Thread {
 		case "Allbugs":
 			Tree<Token> t = tree.getChild(0); // var declaration list
 			for (int i = 0; i < t.getNumberOfChildren(); i++) {
-				variables.put(t.getChild(i).getValue().value, 0.0);
+				interpret(t.getChild(i));
 			}
 			t = tree.getChild(1); // fn declaration list
+			Tree<Token> fn;
 			for (int i = 0; i < t.getNumberOfChildren(); i++) {
-				Tree<Token> fn = t.getChild(i);
+				fn = t.getChild(i);
 				functions.put(fn.getChild(0).getValue().value, fn);
+			}
+			break;
+		case "var":
+			for (int i = 0; i < tree.getNumberOfChildren(); i++) {
+				variables.put(tree.getChild(i).getValue().value, 0.0);
 			}
 			break;
 		case "list":
@@ -78,11 +84,12 @@ public class Interpreter extends Thread {
 	public void run() {
 		if (bugs.size() == 0) return;
 		if (!started) { started = true; startBugs(); }
-		while (bugs.size() > 0 && running) {
+		while (bugs.size() > 0) {
 			//TODO
+			while (!running) {try { sleep(delay); } catch (InterruptedException e) { }}
 			try { sleep(delay); } catch (InterruptedException e) { }
 			unblockAllBugs();
-			System.out.println(bugs.size() + " bugs remain");
+//			System.out.println(bugs.size() + " bugs remain");
 		}
 	}
 	
@@ -131,7 +138,12 @@ public class Interpreter extends Thread {
 	}
 	
 	synchronized void quit() {
+		while (countBlockedBugs() < bugs.size()) {
+			try { wait(); } catch (InterruptedException e) { }
+		}
 		for (String bug : bugs.keySet()) killBug(bugs.get(bug));
+		lines = new ArrayList<Command>();
+		running = false;
 		notifyAll();
 	}
 }

@@ -4,24 +4,24 @@ define fun {
 color red
 turnto 90
 move 20
-turn 45
+turn -45
 move 20
-turn 90
+turn -90
 move 20
-turn 90
+turn -90
 move 20
-turn 45
+turn -45
 move 20
 }
 }
 Bug ffloyd {
 color yellow
-move 20
+moveto 20, 20
 do fun()
 }
 Bug fred {
 color blue
 turn 180
-move 30
+moveto 30, 30
 do fun()
 }

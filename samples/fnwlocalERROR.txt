@@ -1,0 +1,22 @@
+//tests fn def with local var
+
+Bug ffloyd {
+
+initially {
+color none
+moveto 50, 50
+turnto 90
+}
+color green
+do fun(x)
+
+define fun using x {
+    x = 30
+    move x
+    turn 2*x
+    move x
+    turn 2*x
+    move x
+}
+
+}

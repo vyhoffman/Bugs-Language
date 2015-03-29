@@ -268,7 +268,7 @@ public class Parser {
 	public boolean isExitIfStatement() {
 		if (!keyword("exit")) return false;
 		if (!keyword("if")) error("Missing 'if' after 'exit'");
-		stack.pop();			//TODO IS THIS REALLY SUPPOSED TO DROP THE IF?
+		stack.pop();
 		if (!isExpression()) error("Missing/invalid expression");
 		if (!isEol()) error("Missing EOL");
 		makeTree(2, 1);

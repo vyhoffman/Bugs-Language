@@ -13,7 +13,7 @@ public class View extends JPanel {
 	View (Interpreter in) {
 		super();
 		this.in = in;
-		this.setSize(500,500);
+		this.setSize(590,500);
 		this.setVisible(true);
 	}
 	
@@ -33,9 +33,9 @@ public class View extends JPanel {
 		if (c.color == null) return;
 		g.setColor(c.color);
 		int x1 = (int) scaleX(c.x1);
-		int y1 = (int) scaleX(c.y1);
+		int y1 = (int) scaleY(c.y1);
 		int x2 = (int) scaleX(c.x2);
-		int y2 = (int) scaleX(c.y2);
+		int y2 = (int) scaleY(c.y2);
 		g.drawLine(x1, y1, x2, y2);
 	}
 	

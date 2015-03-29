@@ -1,0 +1,26 @@
+Allbugs { 
+var one, two
+}
+Bug ffloyd {
+initially {
+color none
+moveto 50, 50
+turnto 90
+}
+one = 5
+two = 10
+color orange
+move 30
+turn 45
+move 25
+turn 45
+color purple
+move 20
+turn 45
+move 15
+turn 45
+move 10
+turn 45
+move 5
+turn 45
+}

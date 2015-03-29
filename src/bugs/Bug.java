@@ -25,6 +25,7 @@ public class Bug extends Thread {
 	Interpreter interp;
 	boolean blocked; // I know, I'm a terrible person for not making more of
 					// these private. I am TIRED of writing tedious methods.
+	boolean initially;
 	
 	/**Bug constructor
 	 * @param name Bug's name
@@ -39,6 +40,7 @@ public class Bug extends Thread {
 		scopes.push(variables); // bottom of stack of variable maps
 		this.interp = new Interpreter();
 		blocked = false;
+		initially = false;
 	}
 	
 	/**Bug constructor that takes a Bug definition to interpret and a reference
@@ -58,7 +60,7 @@ public class Bug extends Thread {
 		//loop through program
 		int i = 0;
 		if (mainProgram == null) {
-			System.out.println("Bug " + name + " has no main program somehow\n");
+			//System.out.println("Bug " + name + " has no main program somehow\n");
 			interp.killBug(this);
 		}
 		Tree<Token> t;
@@ -68,19 +70,18 @@ public class Bug extends Thread {
 			while (!blocked && i < mainProgram.getNumberOfChildren()) {
 				t = mainProgram.getChild(i);
 				if ("call".equals(t.getValue().value)) {
-					System.out.println("Evaluating " + t.getValue().value + " on " + name);
+//					System.out.println("Evaluating " + t.getValue().value + " on " + name);
 					try { evaluate(t); } catch (RuntimeException e) { throw e; }
 				} else {
-					System.out.println("Interpreting " + t.getValue().value +" on " + name);
+//					System.out.println("Interpreting " + t.getValue().value +" on " + name);
 					try { interpret(t); } catch (RuntimeException e) { throw e; }
 				}
 				i++;
 			}
 			//interp.completeAction(this); //no, do this at the end of interpreting
 		}
-		System.out.println("Killing bug " + name);
+//		System.out.println("Killing bug " + name);
 		interp.killBug(this);
-		//indicate done TODO
 	}
 	
 	/**Returns the Bug's name.
@@ -178,7 +179,7 @@ public class Bug extends Thread {
 		}
 		if (interp.variables.containsKey(var)) return true;
 		return false;
-	} //TODO test
+	}
 	
 	/**Stores the parameter value under the key variable in the list
 	 * of variables (or updates the appropriate instance variable if it is
@@ -205,7 +206,7 @@ public class Bug extends Thread {
 				variables.put(variable, value);
 			} //am counting on caller to check if it requires pre-declared
 		}
-	} //TODO test
+	}
 	
 	/**Returns the value of the named variable, if variable is defined,
 	 * otherwise throws a RuntimeException.
@@ -226,7 +227,7 @@ public class Bug extends Thread {
 							return interp.variables.get(variable);					
 		}
 		throw new RuntimeException("Undeclared variable!");
-	} //TODO test
+	}
 	
 	double fetchFrom(String bug, String v) {
 		if (!interp.bugs.containsKey(bug)) 
@@ -325,7 +326,7 @@ public class Bug extends Thread {
 		case "call":
 			returnVal = 0.0;
 			String fn = tree.getChild(0).getValue().value; // fn name
-			System.out.println(fn + " was called\n");
+//			System.out.println(fn + " was called");
 			if ("distance".equals(fn)) {
 				return distance(tree.getChild(1).getValue().value);
 			}
@@ -338,27 +339,29 @@ public class Bug extends Thread {
 			//get the values
 			Tree<Token> t = tree.getChild(1); //var node
 			Double[] varvalues = new Double[t.getNumberOfChildren()];
-			System.out.println(varvalues.length);
+			//System.out.println(varvalues.length);
 			for (int i = 0; i < t.getNumberOfChildren(); i++) {
 				varvalues[i] = evaluate(t.getChild(i));
-				System.out.println("varvalues["+i+"] = "+varvalues[i]);
+				//System.out.println("varvalues["+i+"] = "+varvalues[i]);
 			}
 			//have to find the function to get the names
 			if (functions.containsKey(fn)) t = functions.get(fn);
 			else if (interp.functions.containsKey(fn)) t = interp.functions.get(fn);
 			else throw new RuntimeException("undeclared function?\n");
 			Tree<Token> param = t.getChild(1);
-			//TODO throw exception if not found?
 			//then have to put everything in locals
 			for (int i = 0; i < param.getNumberOfChildren(); i++) {
-				System.out.println("i = " + i + " ; param.length = " + param.getNumberOfChildren());
-				System.out.println(param.getChild(i).getValue().value);
-				locals.put(param.getChild(i).getValue().value, varvalues[i]);
+				//System.out.println("i = " + i + " ; param.length = " + param.getNumberOfChildren());
+				//System.out.println(param.getChild(i).getValue().value);
+				String v = param.getChild(i).getValue().value;
+				if ("x".equals(v) || "y".equals(v) || "angle".equals(v)) {
+					throw new RuntimeException("Cannot declare x, y, or angle as local var\n");
+				}
+				locals.put(v, varvalues[i]);
 			}
-			System.out.println("Calling " + fn + " on " + name);
+//			System.out.println("Calling " + fn + " on " + name);
 			interpret(t.getChild(2));
-			// TODO check
-			System.out.println("returnVal = " + returnVal);
+//			System.out.println("returnVal = " + returnVal);
 			scopes.pop();
 			return returnVal;
 		default:
@@ -387,14 +390,12 @@ public class Bug extends Thread {
 	 * assign to an undeclared variable.
 	 */
 	public void interpret(Tree<Token> tree) throws RuntimeException {
-		double x1, y1;
+		double dx, dy;
 		switch (tree.getValue().value) {
-//		case "program":
-//			// TODO
+//		case "program": //handled in Interpreter
 //			
 //			break;
 //		case "Allbugs":
-//			// TODO check
 //			Tree<Token> t = tree.getChild(0); // var declaration list
 //			for (int i = 0; i < t.getNumberOfChildren(); i++) {
 //				interp.variables.put(t.getChild(i).getValue().value, 0.0);
@@ -407,12 +408,20 @@ public class Bug extends Thread {
 //			break;
 		case "Bug":
 			// Save the name of the Bug in an instance variable.
-			System.out.println("case Bug\n");
+//			System.out.println("case Bug\n");
 			name = tree.getChild(0).getValue().value; // ???
-			interpret(tree.getChild(1)); // Interpret the list of var declarations.
-			interpret(tree.getChild(2)); // Interpret the initialization block.
+//			System.out.println("should be list: "+tree.getChild(1).getValue().value);
+			for (int i = 0; i < tree.getChild(1).getNumberOfChildren(); i++) {
+				interpret(tree.getChild(1).getChild(i));
+			} // Interpret the list of var declarations.
+//			System.out.println("should be block: "+tree.getChild(3).getValue().value);
 			mainProgram = tree.getChild(3); // Save the block (of commands).
-			interpret(tree.getChild(4)); // Interpret the list of fn declarations
+//			System.out.println("should be list: "+tree.getChild(4).getValue().value);
+			for (int i = 0; i < tree.getChild(4).getNumberOfChildren(); i++) {
+				interpret(tree.getChild(4).getChild(i));
+			} // Interpret the list of fn declarations
+//			System.out.println("should be initially: "+tree.getChild(2).getValue().value);
+			interpret(tree.getChild(2)); // Interpret the initialization block.
 			// For this assignment, ignore the list of function declarations.
 			break;
 		case "list":
@@ -431,62 +440,61 @@ public class Bug extends Thread {
 			break;
 		case "var":
 			for (int i = 0; i < tree.getNumberOfChildren(); i++) {
+//				System.out.println("Storing "+tree.getChild(i).getValue().value);
 				store(tree.getChild(i).getValue().value, 0.0);
 			}
 			break;
 		case "initially":
-			interpret(tree.getChild(0)); // interpret(block) --added block case
+			initially = true;
+			tree = tree.getChild(0);
+			for (int i = 0; i < tree.getNumberOfChildren(); i++) {
+				if (exitLoop) break;
+				interpret(tree.getChild(i));
+			}
+			initially = false;
 			break;
 		case "move":
-			// TODO update
-			x1 = x;
-			y1 = y;
 			double tempD = evaluate(tree.getChild(0));
-			double dx = Math.cos(angle * Math.PI / 180) * tempD;
-			double dy = -(Math.sin(angle * Math.PI / 180) * tempD);
+			dx = Math.cos(angle * Math.PI / 180) * tempD;
+			dy = -(Math.sin(angle * Math.PI / 180) * tempD);
+			interp.lines.add(new Command(x, y, x+dx, y+dy, color));
 			store("x", x + dx);
 			store("y", y + dy);
 			// sin(270) = -1; 270 is down. This would be perfect if we were
 			// using Cartesian coordinates, but with CG default (down == higher 
 			// value), have to subtract sin from y instead of adding.
-			interp.lines.add(new Command(x1, y1, x, y, color));
-			interp.completeAction(this);
+			if (!initially) interp.completeAction(this);
 			break;
 		case "moveto":
-			// TODO update
-			x1 = x;
-			y1 = y;
-			store("x", evaluate(tree.getChild(0)));
-			store("y", evaluate(tree.getChild(1)));
-			interp.lines.add(new Command(x1, y1, x, y, color));
-			interp.completeAction(this);
+			dx = evaluate(tree.getChild(0));
+			dy = evaluate(tree.getChild(1));
+			interp.lines.add(new Command(x, y, dx, dy, color));
+			store("x", dx);
+			store("y", dy);
+			if (!initially) interp.completeAction(this);
 			break;
 		case "turn":
-			// TODO update
 			double newAngle = (angle + evaluate(tree.getChild(0))) % 360.0;
 			store("angle", newAngle >= 0.0 ? newAngle : newAngle + 360.0);
 			// anything to change for redrawing??
-			interp.completeAction(this);
+			if (!initially) interp.completeAction(this);
 			break;
 		case "turnto":
-			// TODO update
 			double newA = evaluate(tree.getChild(0)) % 360.0;
 			store("angle", newA >= 0.0 ? newA : newA + 360.0);
 			// anything to change for redrawing??
-			interp.completeAction(this);
+			if (!initially) interp.completeAction(this);
 			break;
 		case "return":
-			// TODO check
 			returnVal = evaluate(tree.getChild(0));
 			break;
 		case "line":
-			// TODO
-			x1 = evaluate(tree.getChild(0));
-			y1 = evaluate(tree.getChild(1));
+			double x1 = evaluate(tree.getChild(0));
+			double y1 = evaluate(tree.getChild(1));
 			double x2 = evaluate(tree.getChild(2));
 			double y2 = evaluate(tree.getChild(3));
 			interp.lines.add(new Command(x1, y1, x2, y2, color));
-			interp.completeAction(this);
+			if (!initially) interp.completeAction(this);
 			break;
 		case "assign":
 			String tempS = tree.getChild(0).getValue().value;
@@ -527,11 +535,12 @@ public class Bug extends Thread {
 			else if (colorName.equals("white")) color = Color.WHITE;
 			else if (colorName.equals("yellow")) color = Color.YELLOW;
 			else if (colorName.equals("brown")) color = new Color(64, 32, 0);
-			else if (colorName.equals("purple")) color = new Color(80, 0, 64);
+			else if (colorName.equals("purple")) color = new Color(150,50,150);
 			else throw new RuntimeException("Invalid color!");
 			break;
 		case "function":
 			functions.put(tree.getChild(0).getValue().value, tree);
+//			System.out.println(tree.getChild(0).getValue().value);
 		}
 	}
 	

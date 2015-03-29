@@ -1,0 +1,22 @@
+//tests loop, using local and allbugs vars, some arith
+Allbugs { 
+var amount
+var one, two
+}
+Bug ffloyd {
+initially {
+color none
+moveto 50, 50
+turnto 90
+}
+one = 5
+two = 45
+amount = 30
+color purple
+loop {
+move amount
+turn two
+amount = amount - one
+exit if amount < 10
+}
+}
