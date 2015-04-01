@@ -2,6 +2,7 @@ package bugs;
 
 import java.awt.Color;
 import java.awt.Graphics;
+
 import javax.swing.JPanel;
 
 /**View for Bugs program; represents/handles all drawing.
@@ -11,6 +12,8 @@ import javax.swing.JPanel;
 public class View extends JPanel {
 	static final long serialVersionUID = 1L;
 	Interpreter in;
+	Bug nonbug = new Bug("");
+	Color background = new Color(240, 240, 240);
 	
 	/**Default constructor
 	 * 
@@ -33,11 +36,14 @@ public class View extends JPanel {
 	@Override
 	public void paint(Graphics g) {
 		if (in != null) {
-			g.setColor(Color.WHITE);
+			g.setColor(background);
 			g.fillRect(0, 0, getWidth(), getHeight());
 			
-			for (Object c : in.lines.toArray()) paint(g, (Command) c);
-			for (String b : in.bugs.keySet()) paint(g, in.bugs.get(b));			
+			// I use the size rather than a foreach loop in case a line
+			// is added while it's drawing stuff. I think that caused issues.
+			int size = in.lines.size();
+			for (int i = 0; i < size; i++) paint(g, in.lines.get(i));
+			for (String b : in.bugs.keySet()) paint(g, in.bugs.get(b));	
 		}
 
 	}
@@ -125,7 +131,6 @@ public class View extends JPanel {
 	 */
 	@Override
 	public void update(Graphics g) {
-		// TODO Auto-generated method stub
 		repaint();
 		
 	}

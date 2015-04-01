@@ -31,6 +31,7 @@ import tree.Tree;
 /**
  * GUI for Bugs language.
  * @author Dave Matuszek
+ * @author Nicki Hoffman
  * @version 2015
  */
 public class BugsGui extends JFrame {
@@ -59,28 +60,14 @@ public class BugsGui extends JFrame {
         createControlPanel();
         initializeButtons();
         setVisible(true);
-        //handleResizing();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         gui = this;
     }
     
-    // referred to my Kaleidoscope project for this, but apparently don't need it
-//    private void handleResizing() {
-//    	this.addComponentListener(new ComponentAdapter() {
-//    		@Override
-//    		public void componentResized(ComponentEvent arg0) {
-//    	        //display.setSize(getWidth()-2, getHeight()-100);
-//    			display.repaint();
-//    		}
-//    	});
-//    }
-
     private void createAndInstallMenus() {
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");        
-        //JMenu helpMenu = new JMenu("Help");
         JMenuItem quitMenuItem = new JMenuItem("Quit");
-        //JMenuItem helpMenuItem = new JMenuItem("Help");
         JMenuItem loadMenuItem = new JMenuItem("Load...");
         
         menuBar.add(fileMenu);
@@ -100,14 +87,6 @@ public class BugsGui extends JFrame {
                 quit();
             }});
         
-//        menuBar.add(helpMenu);
-//        helpMenu.add(helpMenuItem);
-//        helpMenuItem.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent arg0) {
-//                help();
-//            }});
-        
         this.setJMenuBar(menuBar);
     }
 
@@ -122,7 +101,6 @@ public class BugsGui extends JFrame {
         display.setSize(getWidth()-2, getHeight()-100);
         add(display, BorderLayout.CENTER);
     }
-
 
     private void createControlPanel() {
         JPanel controlPanel = new JPanel();
@@ -252,16 +230,10 @@ public class BugsGui extends JFrame {
 
     private void resetSpeed(int value) {
         speed = value;
-        in.setDelay(speed);
+        in.setDelay(1000 - 10*speed);
     }
 
     protected void newAnimation() {
-//        model = new Model();
-//        model.setSpeed(speed);
-//        view = displayPanel;
-//        g = displayPanel.getGraphics();
-//        timer.stop();
-//        paint(g); 
         stepButton.setEnabled(true);
         runButton.setEnabled(true);
         pauseButton.setEnabled(false);
@@ -271,19 +243,11 @@ public class BugsGui extends JFrame {
     	resetSpeed(speed);
     	remove(display);
     	createDisplayPanel(in);
-//    	display = new View(in);
-//        display.setSize(getWidth()-2, getHeight()-100);
-//        add(display, BorderLayout.CENTER);
         timer.start();
     	in.start();
     }
     
     protected void stepAnimation() {
-//        timer.stop();
-//        runButton.setEnabled(true);
-//        model.setLimits(view.getWidth(), view.getHeight());
-//        model.makeOneStep();
-//        paint(g);
     	in.step();
     	stepButton.setEnabled(true);
         runButton.setEnabled(true);
@@ -293,18 +257,15 @@ public class BugsGui extends JFrame {
     }
     
     protected void runAnimation() {
-//        timer.start();
-        stepButton.setEnabled(true);
+        stepButton.setEnabled(false);
         runButton.setEnabled(false);
         pauseButton.setEnabled(true);
         resetButton.setEnabled(true);
         
     	in.running = true;
-    	
     }
     
     protected void pauseAnimation() {
-//        timer.stop();
     	stepButton.setEnabled(true);
         runButton.setEnabled(true);
         pauseButton.setEnabled(false);
@@ -314,21 +275,11 @@ public class BugsGui extends JFrame {
     }
     
     protected void resetAnimation() {
-//        timer.stop();
-//        model.reset();
-//        stepButton.setEnabled(true);
-//        runButton.setEnabled(true);
-//        pauseButton.setEnabled(false);
-//        resetButton.setEnabled(false);
-
+    	in.running = false;
+    	timer.stop();
     	if (in != null) in.quit();
     	newAnimation();
-//        paint(g);
     }
-
-//    protected void help() {
-//        // Auto-generated method stub
-//    }
 
     protected void quit() {
     	if (in != null) in.quit();

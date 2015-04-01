@@ -13,11 +13,11 @@ public class Interpreter extends Thread {
 	HashMap<String, Tree<Token>> functions;
 	HashMap<String, Double> variables;
 	HashMap<String, Bug> bugs;
-	//Tree<Token> allbugs; //why??
 	boolean started;
 	boolean running;
 	ArrayList<Command> lines;
 	int delay;
+	Bug activeBug;
 	
 	/**Default Interpreter constructor.
 	 * 
@@ -29,6 +29,7 @@ public class Interpreter extends Thread {
 		lines = new ArrayList<Command>();
 		started = false;
 		running = false;
+		activeBug = null;
 	} //hack to allow bugtest to keep working
 	
 	/**Interpreter constructor that takes an AST to interpret.
@@ -38,14 +39,6 @@ public class Interpreter extends Thread {
 		this(); // I mean given the above I might as well
 		interpret(t);
 	}
-	
-//	public void main(String args[]) {
-//		//TODO
-//		String program = "";
-//		Parser p = new Parser(program);
-//		p.isProgram();
-//		//other stuff
-//	}
 	
 	/**Tries to interpret the tree passed in.
 	 * @param tree to interpret
@@ -123,6 +116,14 @@ public class Interpreter extends Thread {
 		unblockAllBugs();
 	}
 	
+	/**Adds the given Command to lines; synchronized to prevent concurrent
+	 * modification.
+	 * @param c Command to add to lines
+	 */
+	synchronized void addCommand(Command c) {
+		lines.add(c);
+	}
+	
 	/**Delays Bug b while it waits for an action permit.
 	 * @param b Bug waiting for an action permit
 	 */
@@ -173,16 +174,12 @@ public class Interpreter extends Thread {
 		notifyAll();
 	}
 	
-	/**Kills all Bugs, clears the set of lines to draw, and stops running.
-	 * 
+	/**.
+	 * Purges sets of live Bugs and of lines to draw.
 	 */
 	synchronized void quit() {
-		while (countBlockedBugs() < bugs.size()) {
-			try { wait(); } catch (InterruptedException e) { }
-		}
-		for (String bug : bugs.keySet()) killBug(bugs.get(bug));
+		bugs = new HashMap<String, Bug>();
 		lines = new ArrayList<Command>();
-		running = false;
 		notifyAll();
 	}
 }

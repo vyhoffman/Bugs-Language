@@ -72,18 +72,12 @@ public class Bug extends Thread {
 		while (i < mainProgram.getNumberOfChildren()) {
 			//get permission
 			interp.getActionPermit(this);
+			//run till it does an action
 			while (!blocked && i < mainProgram.getNumberOfChildren()) {
 				t = mainProgram.getChild(i);
-				if ("call".equals(t.getValue().value)) {
-//					System.out.println("Evaluating " + t.getValue().value + " on " + name);
-					try { evaluate(t); } catch (RuntimeException e) { throw e; }
-				} else {
-//					System.out.println("Interpreting " + t.getValue().value +" on " + name);
-					try { interpret(t); } catch (RuntimeException e) { throw e; }
-				}
+				try { interpret(t); } catch (RuntimeException e) { throw e; }
 				i++;
 			}
-			//interp.completeAction(this); //no, do this at the end of interpreting
 		}
 //		System.out.println("Killing bug " + name);
 		interp.killBug(this);
@@ -454,7 +448,6 @@ public class Bug extends Thread {
 			} // Interpret the list of fn declarations
 //			System.out.println("should be initially: "+tree.getChild(2).getValue().value);
 			interpret(tree.getChild(2)); // Interpret the initialization block.
-			// For this assignment, ignore the list of function declarations.
 			break;
 		case "list":
 			for (int i = 0; i < tree.getNumberOfChildren(); i++) {
@@ -489,7 +482,7 @@ public class Bug extends Thread {
 			double tempD = evaluate(tree.getChild(0));
 			dx = Math.cos(angle * Math.PI / 180) * tempD;
 			dy = -(Math.sin(angle * Math.PI / 180) * tempD);
-			interp.lines.add(new Command(x, y, x+dx, y+dy, color));
+			interp.addCommand(new Command(x, y, x+dx, y+dy, color));
 			store("x", x + dx);
 			store("y", y + dy);
 			// sin(270) = -1; 270 is down. This would be perfect if we were
@@ -500,7 +493,7 @@ public class Bug extends Thread {
 		case "moveto":
 			dx = evaluate(tree.getChild(0));
 			dy = evaluate(tree.getChild(1));
-			interp.lines.add(new Command(x, y, dx, dy, color));
+			interp.addCommand(new Command(x, y, dx, dy, color));
 			store("x", dx);
 			store("y", dy);
 			if (!initially) interp.completeAction(this);
@@ -530,7 +523,7 @@ public class Bug extends Thread {
 			double y1 = evaluate(tree.getChild(1));
 			double x2 = evaluate(tree.getChild(2));
 			double y2 = evaluate(tree.getChild(3));
-			interp.lines.add(new Command(x1, y1, x2, y2, color));
+			interp.addCommand(new Command(x1, y1, x2, y2, color));
 			if (!initially) interp.completeAction(this);
 			break;
 		case "assign":
@@ -583,6 +576,8 @@ public class Bug extends Thread {
 		case "function":
 			functions.put(tree.getChild(0).getValue().value, tree);
 //			System.out.println(tree.getChild(0).getValue().value);
+		case "call":
+			evaluate(tree);
 		}
 	}
 	
